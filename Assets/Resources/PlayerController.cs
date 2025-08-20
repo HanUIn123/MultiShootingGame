@@ -5,7 +5,7 @@ public class PlayerController : MonoBehaviour, Player_InputAction.IGamePlayActio
 {
     private Player_InputAction input;
     private Vector2 moveInput;
-    public float moveSpeed = 5f;
+    public float moveSpeed = 6f;
 
     private PhotonView pv;
 
