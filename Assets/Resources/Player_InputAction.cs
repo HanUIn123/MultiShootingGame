@@ -99,6 +99,15 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""c6e1b0ca-d736-430a-8187-f4f7b1c6fb62"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -167,6 +176,17 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""205dd1e6-b651-403b-871f-8dff64943c7c"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -176,6 +196,7 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
         // GamePlay
         m_GamePlay = asset.FindActionMap("GamePlay", throwIfNotFound: true);
         m_GamePlay_Move = m_GamePlay.FindAction("Move", throwIfNotFound: true);
+        m_GamePlay_Fire = m_GamePlay.FindAction("Fire", throwIfNotFound: true);
     }
 
     ~@Player_InputAction()
@@ -257,6 +278,7 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_GamePlay;
     private List<IGamePlayActions> m_GamePlayActionsCallbackInterfaces = new List<IGamePlayActions>();
     private readonly InputAction m_GamePlay_Move;
+    private readonly InputAction m_GamePlay_Fire;
     /// <summary>
     /// Provides access to input actions defined in input action map "GamePlay".
     /// </summary>
@@ -272,6 +294,10 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "GamePlay/Move".
         /// </summary>
         public InputAction @Move => m_Wrapper.m_GamePlay_Move;
+        /// <summary>
+        /// Provides access to the underlying input action "GamePlay/Fire".
+        /// </summary>
+        public InputAction @Fire => m_Wrapper.m_GamePlay_Fire;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -301,6 +327,9 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
+            @Fire.started += instance.OnFire;
+            @Fire.performed += instance.OnFire;
+            @Fire.canceled += instance.OnFire;
         }
 
         /// <summary>
@@ -315,6 +344,9 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
+            @Fire.started -= instance.OnFire;
+            @Fire.performed -= instance.OnFire;
+            @Fire.canceled -= instance.OnFire;
         }
 
         /// <summary>
@@ -362,5 +394,12 @@ public partial class @Player_InputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Fire" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFire(InputAction.CallbackContext context);
     }
 }

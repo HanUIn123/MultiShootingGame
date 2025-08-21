@@ -2,13 +2,14 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
     [Header("방 생성 UI")]
-    public GameObject createRoomInputFieldObj;             // RoomName_InputField 오브젝트
-    public GameObject createRoomSubmitButtonObj;           // Check_CreateInputButton 오브젝트
-    public TMP_InputField roomNameInput;                   // 입력 필드
+    public GameObject createRoomInputFieldObj;
+    public GameObject createRoomSubmitButtonObj;
+    public TMP_InputField roomNameInput;
 
     [Header("상태 출력 텍스트")]
     public TextMeshProUGUI statusText;
@@ -23,7 +24,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
         statusText.text = "서버 연결 중...";
 
-        // 처음엔 입력창/버튼들 꺼두기
         createRoomInputFieldObj.SetActive(false);
         createRoomSubmitButtonObj.SetActive(false);
         joinRoomInputFieldObj.SetActive(false);
@@ -32,7 +32,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        statusText.text = "서버 연결 성공! 로비 입장 대기 중...";
+        statusText.text = "서버 연결 성공! 로비 입장 중...";
         PhotonNetwork.JoinLobby();
     }
 
@@ -41,9 +41,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         statusText.text = "로비 입장 완료!";
     }
 
-    // ------------------------------
-    // ▶ 방 생성 UI 열기
-    // ------------------------------
     public void ShowCreateUI()
     {
         createRoomInputFieldObj.SetActive(true);
@@ -52,9 +49,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomNameInput.Select();
     }
 
-    // ------------------------------
-    // ▶ 방 생성 시도
-    // ------------------------------
     public void SubmitCreateRoom()
     {
         string roomName = roomNameInput.text;
@@ -69,9 +63,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         statusText.text = $"'{roomName}' 방 생성 시도 중...";
     }
 
-    // ------------------------------
-    // ▶ 참가 UI 열기
-    // ------------------------------
     public void ShowJoinUI()
     {
         joinRoomInputFieldObj.SetActive(true);
@@ -80,9 +71,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         joinRoomNameInput.Select();
     }
 
-    // ------------------------------
-    // ▶ 참가 시도
-    // ------------------------------
     public void SubmitJoinRoom()
     {
         string roomName = joinRoomNameInput.text;
@@ -96,9 +84,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         statusText.text = $"'{roomName}' 방 입장 시도 중...";
     }
 
-    // ------------------------------
-    // ▶ 콜백
-    // ------------------------------
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         statusText.text = $"방 생성 실패: {message}";
@@ -111,12 +96,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        statusText.text = $"방 '{PhotonNetwork.CurrentRoom.Name}' 입장 완료!";
-        PhotonNetwork.Instantiate("PlayerPrefab", Vector3.zero, Quaternion.identity);
+        statusText.text = $"'{PhotonNetwork.CurrentRoom.Name}' 방 입장 완료!";
+
+        // 이 오브젝트 씬 전환 후에도 살아있게 유지
+        DontDestroyOnLoad(this.gameObject);
+
+        // 씬 로드 전에 동기화 옵션 켜기 (꼭 필요!)
+        PhotonNetwork.AutomaticallySyncScene = true;
+
+        // 게임 씬으로 전환
+        SceneManager.LoadScene("GameScene");
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        statusText.text = $"서버 연결이 끊겼습니다: {cause}";
+        statusText.text = $"서버 연결 끊김: {cause}";
     }
 }
