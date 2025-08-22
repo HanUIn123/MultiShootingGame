@@ -18,7 +18,9 @@ public class Bullet : MonoBehaviourPun
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // 충돌했을 때 처리 (나중에 확장 가능)
-        Destroy(gameObject);
+        if (other.CompareTag("Enemy")) 
+        {
+            Destroy(gameObject);
+        }
     }
 }

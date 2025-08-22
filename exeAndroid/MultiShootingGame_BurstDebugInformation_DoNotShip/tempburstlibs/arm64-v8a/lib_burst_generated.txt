@@ -10,7 +10,6 @@ Library: C:\MyUnity\MultiShootingGame\Temp\BurstOutput\tempburstlibs\arm64-v8a\l
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\MyUnity\MultiShootingGame\Temp\Burst
---debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.1.9f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\MyUnity\MultiShootingGame\Library\Burst
 --output=C:\MyUnity\MultiShootingGame\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
@@ -111,7 +110,6 @@ Library: C:\MyUnity\MultiShootingGame\Temp\BurstOutput\tempburstlibs\arm64-v8a\l
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\MyUnity\MultiShootingGame\Temp\Burst
---debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.1.9f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\MyUnity\MultiShootingGame\Library\Burst
 --output=C:\MyUnity\MultiShootingGame\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated

@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour, Player_InputAction.IGamePlayActio
     private PhotonView pv;
 
     [Header("Bullet Settings")]
-    public GameObject bulletPrefab;         // 연결할 총알 프리팹
     private Transform firePoint;            // 총알이 나갈 위치
     public float fireCooldown = 0.25f;      // 쿨타임
     private float lastFireTime;
@@ -58,10 +57,10 @@ public class PlayerController : MonoBehaviour, Player_InputAction.IGamePlayActio
 
         lastFireTime = Time.time;
 
-        if (bulletPrefab == null || firePoint == null) return;
+        if (firePoint == null) return;
 
         // 총알 생성 (모든 클라이언트에 동기화됨)
-        PhotonNetwork.Instantiate(bulletPrefab.name, firePoint.position, firePoint.rotation);
+        PhotonNetwork.Instantiate("BulletPrefab", firePoint.position, firePoint.rotation);
     }
 
     private void Update()
@@ -70,5 +69,15 @@ public class PlayerController : MonoBehaviour, Player_InputAction.IGamePlayActio
 
         Vector3 moveDir = new Vector3(moveInput.x, moveInput.y, 0f);
         transform.Translate(moveDir * moveSpeed * Time.deltaTime, Space.Self);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!pv.IsMine) return;
+
+        //if (collision.CompareTag("Enemy"))
+        //{
+        //    Debug.Log("플레이어 피격됨!"); // HP 시스템 생기면 여기서 감소 처리
+        //}
     }
 }
