@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5032205894112720492}
   - component: {fileID: 3739840859736787915}
   - component: {fileID: -5558721408437229008}
+  - component: {fileID: -4394490414129736689}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Player
@@ -144,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  fireCooldown: 0.25
+  fireCooldown: 0.05
 --- !u!61 &-5558721408437229008
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -191,6 +192,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.5, y: 1.21}
   m_EdgeRadius: 0
+--- !u!114 &-4394490414129736689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884426480321339602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b385aceb1c29474a922ea247ae612d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 100
 --- !u!1 &3589492275843734410
 GameObject:
   m_ObjectHideFlags: 0

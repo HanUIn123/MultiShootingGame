@@ -40,6 +40,10 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - ReceiveChatMessage
+  - UpdateFill
+  - RPC_TakeDamage
+  - ShowWarning
+  - RequestDestroyEnemy
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

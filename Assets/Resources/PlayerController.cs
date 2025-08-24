@@ -69,6 +69,18 @@ public class PlayerController : MonoBehaviour, Player_InputAction.IGamePlayActio
 
         Vector3 moveDir = new Vector3(moveInput.x, moveInput.y, 0f);
         transform.Translate(moveDir * moveSpeed * Time.deltaTime, Space.Self);
+
+        ClampPlayerPosition();
+    }
+
+    private void ClampPlayerPosition()
+    {
+        Vector3 pos = transform.position;
+
+        pos.x = Mathf.Clamp(pos.x, -3.5f, 3.5f);
+        pos.y = Mathf.Clamp(pos.y, -4.6f, 4.6f);
+
+        transform.position = pos;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
