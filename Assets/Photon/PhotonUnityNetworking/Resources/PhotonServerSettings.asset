@@ -44,6 +44,11 @@ MonoBehaviour:
   - RPC_TakeDamage
   - ShowWarning
   - RequestDestroyEnemy
+  - TakeDamage
+  - UpdateHP
+  - RPC_SetDirection
+  - PlayHitEffect
+  - PlayDissolveEffect
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

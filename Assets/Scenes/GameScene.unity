@@ -2811,6 +2811,8 @@ MonoBehaviour:
   warningSign: {fileID: 430391467}
   warningDuration: 3
   blinkInterval: 0.3
+  bossSpawnPosition: {x: 0, y: 4, z: 0}
+  bossPrefabName: Boss/Boss
 --- !u!114 &1630730314
 MonoBehaviour:
   m_ObjectHideFlags: 0

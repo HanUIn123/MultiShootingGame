@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1059519647213622083}
   - component: {fileID: 2448790227510888364}
   - component: {fileID: 8645740343909871550}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Monster
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2938267120685502148}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -63,7 +63,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &5507970718490209371
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -213,7 +213,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1020404219677144188}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
