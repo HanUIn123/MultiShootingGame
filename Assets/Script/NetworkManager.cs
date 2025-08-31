@@ -2,6 +2,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using System.Collections;  
 using UnityEngine.SceneManagement;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -21,6 +22,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        if (string.IsNullOrEmpty(PhotonNetwork.NickName))
+        {
+            PhotonNetwork.NickName = "플레이어#" + Random.Range(1000, 9999);
+        }
+
         PhotonNetwork.ConnectUsingSettings();
         statusText.text = "서버 연결 중...";
 
@@ -28,6 +34,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         createRoomSubmitButtonObj.SetActive(false);
         joinRoomInputFieldObj.SetActive(false);
         joinRoomSubmitButtonObj.SetActive(false);
+
+        StartCoroutine(PlayStartBGM());
+    }
+
+    private IEnumerator PlayStartBGM()
+    {
+        yield return new WaitForSeconds(1f); // 1초 대기
+
+        //AudioClip clip = SoundManager.Instance.LoadClip("BGM");
+        //SoundManager.Instance.PlayBGM(clip);
+
+        SoundManager.Instance.PlayBGM("BGM");
     }
 
     public override void OnConnectedToMaster()

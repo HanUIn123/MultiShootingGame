@@ -49,6 +49,12 @@ MonoBehaviour:
   - RPC_SetDirection
   - PlayHitEffect
   - PlayDissolveEffect
+  - StartHitFlashLoop
+  - StopHitFlashLoop
+  - ActivateBossHpUI
+  - InitBossUI
+  - SetStartTime
+  - HideBossUI
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

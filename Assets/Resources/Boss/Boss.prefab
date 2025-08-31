@@ -199,10 +199,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99311e78fc8284e4cbef89506e29e8e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
-  hpSlider: {fileID: 0}
+  maxHP: 1000
+  bossHpPanel: {fileID: 0}
+  hpFillImage: {fileID: 0}
   bulletPrefabPath: Boss/BossBulletPrefab
   firePoint: {fileID: 7912707834254936467}
+  laserDamageCooldown: 0.2
 --- !u!1 &7489392672191942164
 GameObject:
   m_ObjectHideFlags: 0

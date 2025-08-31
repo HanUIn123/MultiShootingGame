@@ -6,42 +6,59 @@ using System.Collections;
 public class StageProgress : MonoBehaviourPun
 {
     [Header("진행도 UI")]
-    public Image progressFill;              // SP_Fill 이미지
-    public float stageDuration = 30f;       // 스테이지 총 소요시간(초)
+    public Image progressFill;
+    public float stageDuration = 60f;
 
     [Header("Warning UI")]
-    public GameObject warningSign;          // Inspector에 WarningSign 오브젝트 드래그
-    public float warningDuration = 3f;      // 반짝이는 시간
-    public float blinkInterval = 0.3f;      // 반짝이는 속도
+    public GameObject warningSign;
+    public float warningDuration = 3f;
+    public float blinkInterval = 0.3f;
 
     [Header("보스 소환")]
-    public Vector3 bossSpawnPosition = new Vector3(0f, 6.5f, 0f); // 충분히 위쪽
-    public string bossPrefabName = "Boss/Boss";   // Resources/Boss 경로에 있는 프리팹 이름
+    public Vector3 bossSpawnPosition = new Vector3(0f, 6.5f, 0f);
+    public string bossPrefabName = "Boss/BossPrefab";
 
-    private float t = 0.95f * 30f;                    // 진행 시간
+    [Header("보스 체력바 UI")]
+    public GameObject bossHpPanel;
+    public Image bossHpFillImage;
+
+    [Header("몬스터 스포너 연결")]
+    [SerializeField] private MonsterSpawner monsterSpawner;
+
+    private double startTime = -1;
     private bool warningTriggered = false;
 
-    void Update()
+    void Start()
     {
-        // MasterClient만 시간 진행 및 이벤트 실행
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
-        t += Time.deltaTime;
-        float p = Mathf.Clamp01(t / stageDuration);
-
-        // 모든 클라이언트에 진행도 UI 동기화
-        photonView.RPC(nameof(UpdateFill), RpcTarget.All, p);
-
-        // 경고 한번만 실행
-        if (!warningTriggered && p >= 1f)
+        if (PhotonNetwork.IsMasterClient)
         {
-            warningTriggered = true;
-            photonView.RPC(nameof(ShowWarning), RpcTarget.All);
+            startTime = PhotonNetwork.Time;
+            photonView.RPC(nameof(SetStartTime), RpcTarget.AllBuffered, startTime);
         }
     }
 
     [PunRPC]
+    void SetStartTime(double time)
+    {
+        startTime = time;
+    }
+
+    void Update()
+    {
+        if (startTime < 0)
+            return;
+
+        double elapsed = PhotonNetwork.Time - startTime;
+        float p = Mathf.Clamp01((float)(elapsed / stageDuration));
+        UpdateFill(p);
+
+        if (PhotonNetwork.IsMasterClient && !warningTriggered && p >= 1f)
+        {
+            warningTriggered = true;
+            photonView.RPC(nameof(ShowWarning), RpcTarget.AllBuffered);
+        }
+    }
+
     void UpdateFill(float p)
     {
         if (progressFill != null)
@@ -73,19 +90,22 @@ public class StageProgress : MonoBehaviourPun
         img.enabled = false;
         warningSign.SetActive(false);
 
-        //  모든 MonsterSpawner 찾아서 스폰 멈춤 시킴 
         if (PhotonNetwork.IsMasterClient)
         {
-            MonsterSpawner[] spawners = Object.FindObjectsByType<MonsterSpawner>(FindObjectsSortMode.None);
-            foreach (var spawner in spawners)
-            {
-                spawner.StopSpawning();
-            }
+            GameObject boss = PhotonNetwork.Instantiate(bossPrefabName, bossSpawnPosition, Quaternion.identity);
+            BossController bc = boss.GetComponent<BossController>();
 
-            // 그리고 보스 소환
-            PhotonNetwork.Instantiate(bossPrefabName, bossSpawnPosition, Quaternion.identity);
+            bc.hpFillImage = bossHpFillImage;
+            bc.bossHpPanel = bossHpPanel;
+
+            bc.photonView.RPC("InitBossUI", RpcTarget.AllBuffered);
+            bc.StartBossBattle();
+
+            if (monsterSpawner == null)
+                monsterSpawner = FindFirstObjectByType<MonsterSpawner>();
+
+            if (monsterSpawner != null)
+                monsterSpawner.StopSpawning();
         }
     }
-
-
 }

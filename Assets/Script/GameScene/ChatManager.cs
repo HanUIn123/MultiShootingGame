@@ -4,6 +4,7 @@ using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
@@ -24,6 +25,8 @@ public class ChatManager : MonoBehaviourPunCallbacks
         string fullMsg = $"{PhotonNetwork.NickName}: {msg}";
         photonView.RPC("ReceiveChatMessage", RpcTarget.All, fullMsg);
         chatInputField.text = "";
+
+        EventSystem.current.SetSelectedGameObject(null); // 포커스 해제
     }
 
     [PunRPC]
@@ -39,4 +42,11 @@ public class ChatManager : MonoBehaviourPunCallbacks
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
+
+    // 클래스 안에 이 함수 추가해
+    public bool IsChatInputFocused()
+    {
+        return EventSystem.current.currentSelectedGameObject == chatInputField.gameObject;
+    }
+
 }

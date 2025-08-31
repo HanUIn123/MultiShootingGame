@@ -3,48 +3,42 @@ using Photon.Pun;
 
 public class GameSceneInitializer : MonoBehaviourPunCallbacks
 {
+    [Header("플레이어 프리팹 이름 (Resources 폴더 기준)")]
     public string playerPrefabName = "PlayerPrefab";
 
-    [Header("UI")]
-    public PlayerHealthUI playerHealthUI;  // 유니티 인스펙터에 Drag
-
-    private void Awake()
-    {
-        Application.targetFrameRate = 120;
-        QualitySettings.vSyncCount = 0;
-
-        if (string.IsNullOrEmpty(PhotonNetwork.NickName))
-        {
-            PhotonNetwork.NickName = "플레이어" + Random.Range(1000, 9999);
-        }
-
-        if (FindFirstObjectByType<FPSDisplay>() == null)
-        {
-            gameObject.AddComponent<FPSDisplay>();
-        }
-    }
+    [Header("씬 안에 존재하는 UI")]
+    public PlayerHealthUI playerHealthUI;
+    public UltimateUIManager ultimateUIManager;
 
     private void Start()
     {
-        if (PhotonNetwork.IsConnected && PhotonNetwork.InRoom)
+        if (!(PhotonNetwork.IsConnected && PhotonNetwork.InRoom))
         {
-            float xOffset = PhotonNetwork.IsMasterClient ? -2f : 2f;
-            Vector3 spawnPos = new Vector3(xOffset, -3.5f, 0f);
-            Quaternion spawnRot = Quaternion.identity;
-
-            GameObject player = PhotonNetwork.Instantiate(playerPrefabName, spawnPos, spawnRot);
-
-            // 직접 연결
-            var health = player.GetComponent<PlayerHealth>();
-            if (health != null && health.photonView.IsMine)
-            {
-                health.AssignUI(playerHealthUI); // 여기서 SetHP 내부 실행됨
-                playerHealthUI.SetHP(health.maxHP);  // 여기서 안전하게 호출
-            }
+            Debug.LogWarning("[GameSceneInitializer] Photon에 연결되어 있지 않거나 방에 입장하지 않음.");
+            return;
         }
-        else
+
+        // 1. 플레이어 스폰
+        float xOffset = PhotonNetwork.IsMasterClient ? -2f : 2f;
+        Vector3 spawnPosition = new Vector3(xOffset, -3.5f, 0f);
+        GameObject player = PhotonNetwork.Instantiate(playerPrefabName, spawnPosition, Quaternion.identity);
+
+        var health = player.GetComponent<PlayerHealth>();
+        if (health && health.photonView.IsMine)
         {
-            Debug.LogWarning("Photon에 연결되어 있지 않거나 방에 들어가 있지 않습니다.");
+            health.AssignUI(playerHealthUI);
+            playerHealthUI.SetHP(health.maxHP);
         }
+
+        var pc = player.GetComponent<PlayerController>();
+        if (pc && pc.photonView.IsMine)
+        {
+            pc.ultimateUI = ultimateUIManager;
+            var firePoint = player.transform.Find("FirePoint");
+            if (firePoint) pc.InitLaserSpawn(firePoint);
+        }
+
+        // 배경음
+        SoundManager.Instance.PlayBGM("Stage1BGM");
     }
 }

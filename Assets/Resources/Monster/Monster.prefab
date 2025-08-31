@@ -204,6 +204,7 @@ MonoBehaviour:
   bulletPrefabPath: Monster/MonsterBullet
   firePoint: {fileID: 1020404219677144188}
   fireRate: 2
+  maxHP: 100
 --- !u!1 &3801756516427181637
 GameObject:
   m_ObjectHideFlags: 0

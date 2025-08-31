@@ -13,13 +13,41 @@ public class MonsterController : MonoBehaviourPun, IPunObservable
     public float fireRate = 2f;
     private float fireTimer;
 
+    [Header("체력 관련")]
+    public float maxHP = 100f;
+    private float currentHP;
+
+    private Rigidbody2D rb;
+
+    void Awake()
+    {
+        currentHP = maxHP;
+        rb = GetComponent<Rigidbody2D>();
+    }
+
     void Start()
     {
+        // 물리 갱신 안정화를 위해 1프레임 잠시 멈춤
+        if (rb != null)
+            rb.simulated = false;
+
         if (PhotonNetwork.IsMasterClient)
         {
             moveSpeed = Random.Range(1.5f, 4f);
             fireTimer = Random.Range(0f, fireRate);
         }
+
+        // 위치 보간 초기화
+        networkPosition = transform.position;
+
+        // 1프레임 뒤에 Rigidbody 활성화
+        Invoke(nameof(EnablePhysics), 0.05f);
+    }
+
+    void EnablePhysics()
+    {
+        if (rb != null)
+            rb.simulated = true;
     }
 
     void Update()
@@ -35,7 +63,6 @@ public class MonsterController : MonoBehaviourPun, IPunObservable
                 FireBullet();
             }
 
-            // 마스터 클라이언트가 파괴 담당
             if (transform.position.y < -7f)
             {
                 if (photonView != null && photonView.IsMine)
@@ -53,6 +80,19 @@ public class MonsterController : MonoBehaviourPun, IPunObservable
     {
         if (firePoint == null) return;
         PhotonNetwork.Instantiate(bulletPrefabPath, firePoint.position, Quaternion.identity);
+    }
+
+    public void TakeDamage(float amount)
+    {
+        if (!photonView.IsMine) return;
+
+        currentHP -= amount;
+        Debug.Log($"[몬스터] 피격됨. 현재 체력: {currentHP}");
+
+        if (currentHP <= 0f)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
