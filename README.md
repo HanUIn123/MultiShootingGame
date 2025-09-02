@@ -12,7 +12,7 @@
 - 네트워크 : Photon PUN2
 
 ## ■ 시연 영상
-- [▶ Multi Shooting 시연 영상](https://youtu.be/Ch-EU6h1Ru4)
+- [Multi Shooting 시연 영상](https://youtu.be/Ch-EU6h1Ru4)
 
 ---
 
