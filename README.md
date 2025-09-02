@@ -49,7 +49,7 @@
 - ![Geometry Shader 연출](./Unity_Shorts/Ultimate.gif) ![Geometry Shader 연출](./Unity_Shorts/Boss.gif) 
 ---
 
-## ■ 담당 파트 핵심 요약
+## ■ 구현 파트 핵심 요약
 - Photon PUN2 네트워크 시스템 (방 생성, 참가, 오브젝트 동기화, RPC 통신) 구현
 - TMP 기반 실시간 채팅 시스템 구현
 - 플레이어 조작, 몬스터 & Boss AI, 각 유닛들 총알 발사, 탄막 패턴, 궁극기(컷 인 이미지 연출 + 레이저 스킬) 구현
