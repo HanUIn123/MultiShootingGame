@@ -27,7 +27,7 @@
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송됩니다.
 - 입력창이 포커스된 동안은 캐릭터 조작 입력이 되지 않게끔 예외처리를 했습니다.
-- ![Geometry Shader 연출](./Unity_Shorts/Chatting.gif)
+- ![Geometry Shader 연출](./Unity_Shorts/Chatting2.gif)
 
 ### 3. 플레이어 컨트롤
 - Unity New Input System 기반으로 이동 / 공격 / 궁극기 기능을 수행합니다.
