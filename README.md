@@ -27,6 +27,7 @@
 - TMP_InputField + ScrollRect 기반 채팅창을 구현하였습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송되도록 하였습니다.
 - 입력창이 포커스된 동안은 캐릭터 조작이 차단되도록 처리하였습니다.
+- ![Geometry Shader 연출](./Unity_Shorts/Chatting.gif)
 
 ### 3. 플레이어 컨트롤
 - Unity New Input System 기반으로 이동 / 공격 / 궁극기 입력을 처리하였습니다.
@@ -44,7 +45,7 @@
 - Boss Hit Flash Shader는 _WhiteAmount 값을 기반으로 흰색 점멸 효과가 발생하도록 하였습니다.
 - Laser Shader는 노이즈 기반 흔들림과 발광 효과가 적용되도록 하였습니다.
 - Warning UI는 깜빡임과 StageProgress 게이지 애니메이션을 통해 시각적 효과를 주었습니다.
-
+- ![Geometry Shader 연출](./Unity_Shorts/Ultimate.gif) ![Geometry Shader 연출](./Unity_Shorts/Boss.gif) 
 ---
 
 ## ■ 담당 파트 핵심 요약
