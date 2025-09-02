@@ -21,7 +21,7 @@
 ### 1. 네트워크 시스템 (Photon PUN2)
 - 방 생성과 참가 기능을 구현하였습니다.
 - PhotonNetwork.Instantiate를 활용하여 플레이어, 총알, 보스 오브젝트를 네트워크로 동기화했습니다.
-- RPC 호출을 통해 보스 HP, 채팅 메시지 등을 모든 클라이언트에 공유했습니다.
+- RPC 호출을 통해 보스 HP, 채팅 메시지 등을 모든 클라이언트에 공유합니다.
 - ![Geometry Shader 연출](./Unity_Shorts/JoinRoom.gif)
 ### 2. 채팅 시스템
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
