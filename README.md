@@ -48,9 +48,13 @@
 
 ## ■ 담당 파트 핵심 요약
 -Photon PUN2 네트워크 시스템 (방 생성, 참가, 오브젝트 동기화, RPC 통신)
+
 -TMP 기반 실시간 채팅 시스템
+
 -플레이어 조작, 총알 발사, 궁극기(컷인+레이저) 시스템 구현
+
 -StageProgress → Warning → Boss 소환 및 탄막 패턴 구현
+
 -Shader 연출 (레이저, Hit Flash, UI Cut-in)
 
 ---
