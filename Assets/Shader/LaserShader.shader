@@ -16,7 +16,7 @@ Shader "Custom/LaserShader"
         Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 100
 
-        // 기존의 Additive 대신, 일반 반투명 블렌딩 사용
+        // 투명 블렌딩 설정
         Blend SrcAlpha OneMinusSrcAlpha
         Cull Off
         Lighting Off
@@ -25,8 +25,8 @@ Shader "Custom/LaserShader"
         Pass
         {
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex VS_MAIN
+            #pragma fragment PS_MAIN
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
@@ -39,50 +39,56 @@ Shader "Custom/LaserShader"
             float _Speed;
             float _DistortAmount;
 
-            struct appdata
+            // 정점 셰이더 입력
+            struct VS_IN
             {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float4 vPos : POSITION;
+                float2 vUV  : TEXCOORD0;
             };
 
-            struct v2f
+            // 픽셀 셰이더 입력 
+            struct PS_IN
             {
-                float2 uv : TEXCOORD0;
-                float2 noiseUV : TEXCOORD1;
-                float4 vertex : SV_POSITION;
+                float2 vUV       : TEXCOORD0;
+                float2 vNoiseUV  : TEXCOORD1;
+                float4 vClipPos  : SV_POSITION;
             };
 
-            v2f vert (appdata v)
+            // 정점 셰이더
+            PS_IN VS_MAIN(VS_IN In)
             {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.noiseUV = TRANSFORM_TEX(v.uv, _NoiseTex);
-                return o;
+                PS_IN Out;
+                Out.vClipPos = UnityObjectToClipPos(In.vPos);
+                Out.vUV = TRANSFORM_TEX(In.vUV, _MainTex);
+                Out.vNoiseUV = TRANSFORM_TEX(In.vUV, _NoiseTex);
+                return Out;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            // 픽셀 셰이더
+            fixed4 PS_MAIN(PS_IN In) : SV_Target
             {
-                float time = _Time.y * _Speed;
+                float fTime = _Time.y * _Speed;
 
-                // 더 빠르고 복잡한 곡선 흔들림
-                float wave = sin(i.noiseUV.y * 60 + time * 4) * 0.5 +
-                             cos(i.noiseUV.y * 30 + time * 2) * 0.5;
-                float2 offset = float2(wave * _DistortAmount, 0);
-                float2 uv = i.uv + offset;
+                // 레이저 출렁임 (sin + cos 파형)
+                float fWave = sin(In.vNoiseUV.y * 60 + fTime * 4) * 0.5 +
+                              cos(In.vNoiseUV.y * 30 + fTime * 2) * 0.5;
 
-                fixed4 texCol = tex2D(_MainTex, uv);
+                float2 vOffset = float2(fWave * _DistortAmount, 0);
+                float2 vUV = In.vUV + vOffset;
+
+                // 메인 텍스처 색상
+                fixed4 texCol = tex2D(_MainTex, vUV);
                 fixed4 col = texCol * _Color;
 
-                // 알파 강제 제어 (중앙이 강하고 위로 갈수록 fade-out)
-                float baseAlpha = saturate(1.0 - i.uv.y) * 1.2;
-                col.a = texCol.a * baseAlpha;
+                // 중앙 진하게, 위로 갈수록 옅게
+                float fBaseAlpha = saturate(1.0 - In.vUV.y) * 1.2;
+                col.a = texCol.a * fBaseAlpha;
 
-                // 발광 노이즈 강조
-                float noise = tex2D(_NoiseTex, i.noiseUV + time * 0.2).r;
-                float3 emission = _EmissionColor.rgb * noise * _Intensity;
+                // 발광 노이즈
+                float fNoise = tex2D(_NoiseTex, In.vNoiseUV + fTime * 0.2).r;
+                float3 vEmission = _EmissionColor.rgb * fNoise * _Intensity;
 
-                col.rgb = col.rgb + emission;
+                col.rgb = col.rgb + vEmission;
 
                 return col;
             }
