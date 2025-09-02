@@ -14,7 +14,9 @@ public class MonsterSpawner : MonoBehaviourPun
 
     [Header("웨이브 설정")]
     public float spawnInterval = 2f;
-    public int monstersPerWave = 3;
+
+    // 한번에 생성할 몬스터의 갯수 .
+    public int monsterCountPerWave = 3;
 
     private bool stopSpawning = false;
 
@@ -40,26 +42,29 @@ public class MonsterSpawner : MonoBehaviourPun
         Camera cam = Camera.main;
         if (cam == null)
         {
-            Debug.LogWarning("[MonsterSpawner] 메인 카메라를 찾을 수 없습니다.");
+            Debug.LogWarning("메인 카메라를 찾을 수 없습니다.");
             return;
         }
 
-        float camHeight = cam.orthographicSize * 2f;
-        float camWidth = camHeight * cam.aspect;
+        // 화면 상에 보여질 비율을 고려해서 카메라를 가져와서.. 
+        float fCamHeight = cam.orthographicSize * 2f;
+        float fCamWidth = fCamHeight * cam.aspect;
 
-        float left = cam.transform.position.x - (camWidth / 2f) + camWidth * horizontalPadding;
-        float right = cam.transform.position.x + (camWidth / 2f) - camWidth * horizontalPadding;
+        float fLeft = cam.transform.position.x - (fCamWidth / 2f) + fCamWidth * horizontalPadding;
+        float fRight = cam.transform.position.x + (fCamWidth / 2f) - fCamWidth * horizontalPadding;
 
-        float topY = cam.transform.position.y + cam.orthographicSize + offsetY;
+        float fTopY = cam.transform.position.y + cam.orthographicSize + offsetY;
 
-        for (int i = 0; i < monstersPerWave; i++)
+        for (int i = 0; i < monsterCountPerWave; i++)
         {
-            // X 위치를 좌~우 균등 분배
-            float t = monstersPerWave == 1 ? 0.5f : (float)i / (monstersPerWave - 1);
-            float xPos = Mathf.Lerp(left, right, t);
-            float jitter = Random.Range(-randomOffset, randomOffset);
+            float xRatio = ( monsterCountPerWave == 1 ? 0.5f : (float)i / (monsterCountPerWave - 1) );
+            
+            float xPos = Mathf.Lerp(fLeft, fRight, xRatio);
 
-            Vector3 spawnPos = new Vector3(xPos + jitter, topY, 0f);
+            float xOffsetNoise = Random.Range(-randomOffset, randomOffset);
+
+            Vector3 spawnPos = new Vector3(xPos + xOffsetNoise, fTopY, 0f);
+
             PhotonNetwork.Instantiate(monsterPath, spawnPos, Quaternion.identity);
         }
     }

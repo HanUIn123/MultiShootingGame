@@ -10,10 +10,7 @@ public class PlayerHealthUI : MonoBehaviour
     public void SetHP(int hp)
     {
         if (hpFillImage == null)
-        {
-            Debug.LogWarning("hpFillImage is not assigned!");
             return;
-        }
 
         currentHP = Mathf.Clamp(hp, 0, maxHP);
         hpFillImage.fillAmount = (float)currentHP / maxHP;

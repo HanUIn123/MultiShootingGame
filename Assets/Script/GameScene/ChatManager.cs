@@ -19,26 +19,30 @@ public class ChatManager : MonoBehaviourPunCallbacks
 
     public void OnClickSend()
     {
-        string msg = chatInputField.text;
-        if (string.IsNullOrEmpty(msg)) return;
+        string strMessage = chatInputField.text;
 
-        string fullMsg = $"{PhotonNetwork.NickName}: {msg}";
-        photonView.RPC("ReceiveChatMessage", RpcTarget.All, fullMsg);
+        if (string.IsNullOrEmpty(strMessage)) 
+            return;
+
+        string strFullMessage = $"{PhotonNetwork.NickName}: {strMessage}";
+
+        photonView.RPC("ReceiveChatMessage", RpcTarget.All, strFullMessage);
+
         chatInputField.text = "";
 
-        EventSystem.current.SetSelectedGameObject(null); // 포커스 해제
+        EventSystem.current.SetSelectedGameObject(null); 
     }
 
     [PunRPC]
-    void ReceiveChatMessage(string msg)
+    void ReceiveChatMessage(string strMessage)
     {
-        chatLogText.text += msg + "\n";
+        chatLogText.text += strMessage + "\n";
         StartCoroutine(ScrollToBottomNextFrame());
     }
 
     IEnumerator ScrollToBottomNextFrame()
     {
-        yield return null;  // 한 프레임 기다림
+        yield return null; 
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }

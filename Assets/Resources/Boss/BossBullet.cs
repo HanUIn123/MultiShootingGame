@@ -4,13 +4,12 @@ using Photon.Pun;
 public class BossBullet : MonoBehaviourPun
 {
     public float speed = 5f;
-    private Vector3 moveDirection = Vector3.down; // 기본 방향
+    private Vector3 moveDirection = Vector3.down; 
 
     public void SetDirection(Vector3 dir)
     {
         moveDirection = dir.normalized;
 
-        // 다른 클라이언트에게도 방향 전달
         photonView.RPC("RPC_SetDirection", RpcTarget.OthersBuffered, dir.x, dir.y, dir.z);
     }
 
@@ -47,12 +46,14 @@ public class BossBullet : MonoBehaviourPun
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player")) return;
+        if (!collision.CompareTag("Player")) 
+            return;
 
-        var hp = collision.GetComponent<PlayerHealth>();
-        if (hp != null)
+        var PlayerHelath = collision.GetComponent<PlayerHealth>();
+
+        if (PlayerHelath != null)
         {
-            hp.photonView.RPC("RPC_TakeDamage", hp.photonView.Owner, 10);
+            PlayerHelath.photonView.RPC("RPC_TakeDamage", PlayerHelath.photonView.Owner, 10);
         }
 
         if (photonView != null && photonView.IsMine && gameObject != null)

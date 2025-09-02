@@ -4,47 +4,47 @@ using System.Collections.Generic;
 
 public class BackgroundScrollerUI : MonoBehaviour
 {
-    public RectTransform originalImage;  // 백그라운드 이미지 하나 (UI용)
-    public float scrollSpeed = 200f;     // UI 기준이라 px/s 속도
+    public RectTransform originalImage;  
+    public float scrollSpeed = 200f;     
     private float imageHeight;
 
-    private List<RectTransform> images = new List<RectTransform>();
+    private List<RectTransform> listImages= new List<RectTransform>();
 
     void Awake()
     {
         imageHeight = originalImage.rect.height;
 
         // 원본 추가
-        images.Add(originalImage);
+        listImages.Add(originalImage);
 
         // 복제해서 하나 더 만들기
-        RectTransform clone = Instantiate(originalImage, originalImage.parent);
-        clone.name = "BackgroundClone";
-        images.Add(clone);
+        RectTransform cloneImages = Instantiate(originalImage, originalImage.parent);
+        cloneImages.name = "BackgroundClone";
+        listImages.Add(cloneImages);
 
         // 위치 초기화
-        images[0].anchoredPosition = Vector2.zero;
-        images[1].anchoredPosition = new Vector2(0f, imageHeight);
+        listImages[0].anchoredPosition = Vector2.zero;
+        listImages[1].anchoredPosition = new Vector2(0f, imageHeight);
     }
 
     void Update()
     {
-        float moveY = scrollSpeed * Time.deltaTime;
+        float fMoveY = scrollSpeed * Time.deltaTime;
 
-        for (int i = 0; i < images.Count; i++)
+        for (int i = 0; i < listImages.Count; i++)
         {
-            Vector2 pos = images[i].anchoredPosition;
-            pos.y -= moveY;
-            images[i].anchoredPosition = pos;
+            Vector2 pos = listImages[i].anchoredPosition;
+            pos.y -= fMoveY;
+            listImages[i].anchoredPosition = pos;
         }
 
-        for (int i = 0; i < images.Count; i++)
+        for (int i = 0; i < listImages.Count; i++)
         {
-            if (images[i].anchoredPosition.y <= -imageHeight)
+            if (listImages[i].anchoredPosition.y <= -imageHeight)
             {
-                int other = (i + 1) % images.Count;
-                float topY = images[other].anchoredPosition.y + imageHeight;
-                images[i].anchoredPosition = new Vector2(0f, topY);
+                int iOther= (i + 1) % listImages.Count;
+                float fTopY = listImages[iOther].anchoredPosition.y + imageHeight;
+                listImages[i].anchoredPosition = new Vector2(0f, fTopY);
             }
         }
     }

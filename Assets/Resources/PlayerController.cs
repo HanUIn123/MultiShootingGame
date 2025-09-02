@@ -5,59 +5,56 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IGamePlayActions
 {
-    private ChatManager chatManager;
-
     private Player_InputAction input;
-    private Vector2 moveInput;
-    [SerializeField] private float moveSpeed = 6f;
+    private Vector2 v2MoveInput;
+    private PhotonView pv;
 
-    private Transform firePoint;
-    [SerializeField] private float fireCooldown = 0.25f;
-    private float lastFireTime;
+    [SerializeField] private float fMoveSpeed = 6f;
+    [SerializeField] private float fFireCooldown = 0.25f;
+    private float fLastFireTime;
+
+    private Transform trFirePoint;
+    private Transform trLaserSpawn;
 
     [Header("±Ã±Ø±â °ÔÀÌÁö ¼³Á¤")]
-    [SerializeField] private float chargeSpeed = 1.5f;
-    private float currentGauge = 0f;
-    private bool isCharging = false;
-    private bool isFevertime = false;
+    [SerializeField] private float fChargeSpeed = 1.5f;
+    private float fCurrentGauge = 0f;
+    private bool bIsCharging = false;
+    private bool bIsFevertime = false;
 
     [Header("±Ã±Ø±â ·¹ÀÌÀú")]
     [SerializeField] private string laserPrefabPath = "UltimateLaser";
-    private Transform _laserSpawnPoint;
 
     [Header("UI ¿¬°á")]
-    [HideInInspector]
-    public UltimateUIManager ultimateUI;
+    [HideInInspector] public UltimateUIManager ultimateUI;
+    private ChatManager chatManager;
 
-    private PhotonView pv;
-
-    public void InitLaserSpawn(Transform t) => _laserSpawnPoint = t;
+    public void InitLaserSpawn(Transform tr) => trLaserSpawn = tr;
 
     private void Awake()
     {
         chatManager = FindFirstObjectByType<ChatManager>();
-
         input = new Player_InputAction();
         input.GamePlay.SetCallbacks(this);
+
         pv = GetComponent<PhotonView>();
 
-        firePoint = transform.Find("FirePoint");
-        if (!firePoint)
+        trFirePoint = transform.Find("FirePoint");
+        if (!trFirePoint)
             Debug.LogError("[PlayerController] FirePoint ¾øÀ½");
-        if (_laserSpawnPoint == null)
-            _laserSpawnPoint = firePoint;
+
+        if (trLaserSpawn == null)
+            trLaserSpawn = trFirePoint;
     }
 
     private void Start()
     {
-        if (pv.IsMine)
+        if (pv.IsMine && ultimateUI == null)
         {
+            ultimateUI = FindFirstObjectByType<UltimateUIManager>();
+
             if (ultimateUI == null)
-            {
-                ultimateUI = FindObjectOfType<UltimateUIManager>();
-                if (ultimateUI == null)
-                    Debug.LogWarning("[PlayerController] ±Ã±Ø±â UI°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
-            }
+                Debug.LogWarning("[PlayerController] ±Ã±Ø±â UI ¿¬°á ¾ÈµÊ");
         }
     }
 
@@ -73,25 +70,51 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
             input.GamePlay.Disable();
     }
 
+    private void Update()
+    {
+        if (!pv.IsMine || IsChatInputFocused()) 
+            return;
+
+        Vector3 v3MoveDir = new Vector3(v2MoveInput.x, v2MoveInput.y, 0f);
+        transform.Translate(v3MoveDir * fMoveSpeed * Time.deltaTime, Space.Self);
+
+        ClampPlayerPosition(); 
+
+        if (bIsCharging && !bIsFevertime)
+        {
+            fCurrentGauge += Time.deltaTime * fChargeSpeed;
+            fCurrentGauge = Mathf.Clamp01(fCurrentGauge);
+
+            if (ultimateUI)
+                ultimateUI.UpdateGauge(fCurrentGauge);
+
+            if (fCurrentGauge >= 1f)
+                TriggerFevertime();
+        }
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (!pv.IsMine || IsChatInputFocused()) return;
-        moveInput = context.ReadValue<Vector2>();
+        if (!pv.IsMine || IsChatInputFocused()) 
+            return;
+
+        v2MoveInput = context.ReadValue<Vector2>();
     }
 
     public void OnFire(InputAction.CallbackContext context)
     {
-        if (!pv.IsMine || IsChatInputFocused()) return;
+        if (!pv.IsMine || IsChatInputFocused()) 
+            return;
 
         if (context.performed)
         {
-            if (Time.time - lastFireTime < fireCooldown)
+            if (Time.time - fLastFireTime < fFireCooldown)
                 return;
 
-            lastFireTime = Time.time;
+            fLastFireTime = Time.time;
 
-            if (firePoint)
-                PhotonNetwork.Instantiate("BulletPrefab", firePoint.position, firePoint.rotation);
+            if (trFirePoint)
+                PhotonNetwork.Instantiate("BulletPrefab", trFirePoint.position, trFirePoint.rotation);
 
             if (SoundManager.Instance != null)
                 SoundManager.Instance.PlaySFX("BulletSound");
@@ -100,95 +123,72 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     public void OnUltimate(InputAction.CallbackContext context)
     {
-        if (!pv.IsMine || IsChatInputFocused()) return;
+        if (!pv.IsMine || IsChatInputFocused()) 
+            return;
 
         if (context.started)
-            isCharging = true;
+            bIsCharging = true;
         else if (context.canceled)
-            isCharging = false;
+            bIsCharging = false;
     }
 
-    private void Update()
+    public void OnChargeButtonPressed()
     {
-        if (!pv.IsMine || IsChatInputFocused()) return;
+        bIsCharging = true;
 
-        Vector3 moveDir = new Vector3(moveInput.x, moveInput.y, 0f);
-        transform.Translate(moveDir * moveSpeed * Time.deltaTime, Space.Self);
-        ClampPlayerPosition();
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null); 
+    }
 
-        if (isCharging && !isFevertime)
-        {
-            currentGauge += Time.deltaTime * chargeSpeed;
-            currentGauge = Mathf.Clamp01(currentGauge);
-
-            if (ultimateUI)
-                ultimateUI.UpdateGauge(currentGauge);
-
-            if (currentGauge >= 1f)
-                TriggerFevertime();
-        }
+    public void OnChargeButtonReleased()
+    {
+        bIsCharging = false;
     }
 
     private void ClampPlayerPosition()
     {
-        Vector3 pos = transform.position;
-        pos.x = Mathf.Clamp(pos.x, -3.5f, 3.5f);
-        pos.y = Mathf.Clamp(pos.y, -4.6f, 4.6f);
-        transform.position = pos;
+        Vector3 v3Pos = transform.position;
+        v3Pos.x = Mathf.Clamp(v3Pos.x, -3.5f, 3.5f);
+        v3Pos.y = Mathf.Clamp(v3Pos.y, -4.6f, 4.6f);
+        transform.position = v3Pos;
     }
 
     private void TriggerFevertime()
     {
-        isFevertime = true;
+        bIsFevertime = true;
 
         if (ultimateUI)
         {
             ultimateUI.onCutInFinished = FinishFevertimeAndFire;
-            ultimateUI.PlayCutIn();
+            ultimateUI.PlayCutIn(); 
         }
         else
-        {
-            Debug.LogWarning("[PlayerController] ultimateUI ¾øÀ½ ¡æ ÄÆÀÎ ¾øÀÌ ¹Ù·Î ¹ß»ç");
             FinishFevertimeAndFire();
-        }
     }
 
     private void FinishFevertimeAndFire()
     {
-        if (!isFevertime) return;
-        isFevertime = false;
+        if (!bIsFevertime) 
+            return;
+
+        bIsFevertime = false;
+        fCurrentGauge = 0f;
 
         if (ultimateUI)
             ultimateUI.UpdateGauge(0f);
-
-        currentGauge = 0f;
 
         FireUltimateLaser();
     }
 
     private void FireUltimateLaser()
     {
-        if (!_laserSpawnPoint || !pv.IsMine) return;
+        if (!trLaserSpawn || !pv.IsMine) 
+            return;
 
-        PhotonNetwork.Instantiate(laserPrefabPath, _laserSpawnPoint.position, _laserSpawnPoint.rotation);
+        PhotonNetwork.Instantiate(laserPrefabPath, trLaserSpawn.position, trLaserSpawn.rotation);
 
         if (SoundManager.Instance != null)
             SoundManager.Instance.PlaySFX("FireSound");
-
-        Debug.Log("[±Ã±Ø±â] UltimateLaser ¹ß»ç ¿Ï·á");
-    }
-
-    public void OnChargeButtonPressed()
-    {
-        isCharging = true;
-
-        if (EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(null);
-    }
-
-    public void OnChargeButtonReleased()
-    {
-        isCharging = false;
     }
 
     private bool IsChatInputFocused()

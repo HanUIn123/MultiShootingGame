@@ -19,21 +19,24 @@ public class MonsterBullet : MonoBehaviourPun
     {
         if (photonView != null && photonView.IsMine)
             PhotonNetwork.Destroy(gameObject);
+
         else if (gameObject != null)
             Destroy(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player")) return;
+        if (!collision.CompareTag("Player")) 
+            return;
 
-        var hp = collision.GetComponent<PlayerHealth>();
-        if (hp != null)
+        var PlayerHelath= collision.GetComponent<PlayerHealth>();
+
+        if (PlayerHelath != null)
         {
-            hp.photonView.RPC("RPC_TakeDamage", hp.photonView.Owner, 10);
+            // PlayerHelath.photonView.Owner : 본인의 클라이언트에서의 기준 주인공.
+            PlayerHelath.photonView.RPC("RPC_TakeDamage", PlayerHelath.photonView.Owner, 10);
         }
 
-        // 즉시 제거
         if (photonView != null && photonView.IsMine && gameObject != null)
             PhotonNetwork.Destroy(gameObject);
         else

@@ -40,10 +40,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     private IEnumerator PlayStartBGM()
     {
-        yield return new WaitForSeconds(1f); // 1초 대기
-
-        //AudioClip clip = SoundManager.Instance.LoadClip("BGM");
-        //SoundManager.Instance.PlayBGM(clip);
+        yield return new WaitForSeconds(1f); 
 
         SoundManager.Instance.PlayBGM("BGM");
     }
@@ -51,6 +48,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         statusText.text = "서버 연결 성공! 로비 입장 중...";
+
         PhotonNetwork.JoinLobby();
     }
 
@@ -70,6 +68,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void SubmitCreateRoom()
     {
         string roomName = roomNameInput.text;
+
         if (string.IsNullOrEmpty(roomName))
         {
             statusText.text = "방 이름을 입력하세요!";
@@ -92,6 +91,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void SubmitJoinRoom()
     {
         string roomName = joinRoomNameInput.text;
+
         if (string.IsNullOrEmpty(roomName))
         {
             statusText.text = "입장할 방 이름을 입력하세요!";
@@ -116,13 +116,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         statusText.text = $"'{PhotonNetwork.CurrentRoom.Name}' 방 입장 완료!";
 
-        // 이 오브젝트 씬 전환 후에도 살아있게 유지
+        // NetworkManager 라는 오브젝트가 계속 살아있게 한다. 그러면 GameScene 으로 전환해도, 
+        // Photon 연결 상태임. NickName 이나 Room 정보 그대로 유지 가능. 
         DontDestroyOnLoad(this.gameObject);
 
-        // 씬 로드 전에 동기화 옵션 켜기 (꼭 필요!)
+        // 씬 로드 전에 동기화 옵션 켜기 
         PhotonNetwork.AutomaticallySyncScene = true;
 
-        // 게임 씬으로 전환
         SceneManager.LoadScene("GameScene");
     }
 

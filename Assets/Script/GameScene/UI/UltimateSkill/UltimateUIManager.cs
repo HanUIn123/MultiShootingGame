@@ -5,12 +5,12 @@ using System.Collections;
 public class UltimateUIManager : MonoBehaviour
 {
     public Image ultimateGauge;
-    public RectTransform cutInRect; // 이미지 → RectTransform
+    public RectTransform cutInRect; 
     public float slideDuration = 0.3f;
     public float displayDuration = 0.8f;
 
-    public Vector2 startOffset = new Vector2(800f, 400f); // 우상단 오프셋
-    public Vector2 endPosition = Vector2.zero; // 중앙 고정
+    public Vector2 startOffset = new Vector2(800f, 400f); 
+    public Vector2 endPosition = Vector2.zero; 
     public System.Action onCutInFinished;
 
     private Vector2 originalAnchoredPos;
@@ -23,12 +23,13 @@ public class UltimateUIManager : MonoBehaviour
 
     public void PlayCutIn()
     {
-        if (cutInRect == null) return;
+        if (cutInRect == null) 
+            return;
 
-        // 저장된 원래 위치로 설정
         originalAnchoredPos = cutInRect.anchoredPosition;
 
         StopAllCoroutines();
+
         StartCoroutine(PlayCutInRoutine());
     }
 
@@ -36,19 +37,20 @@ public class UltimateUIManager : MonoBehaviour
     {
         cutInRect.gameObject.SetActive(true);
 
-        // 우상단 바깥에서 시작
+        // 우상단 바깥에서 시작하자, 화면 중앙값 + 시작 위치 값 더해서, 
         cutInRect.anchoredPosition = endPosition + startOffset;
 
-        // 등장 연출: 슬라이드 인
-        float t = 0f;
-        while (t < slideDuration)
+        float fTime = 0f;
+        while (fTime < slideDuration)
         {
-            t += Time.deltaTime;
-            cutInRect.anchoredPosition = Vector2.Lerp(endPosition + startOffset, endPosition, t / slideDuration);
+            fTime += Time.deltaTime;
+
+            cutInRect.anchoredPosition = Vector2.Lerp(endPosition + startOffset, endPosition, fTime / slideDuration);
+
             yield return null;
         }
 
-        // 위치 보정
+        // 이제 여기서 cutInRect는, 화면 중앙이 되버림.
         cutInRect.anchoredPosition = endPosition;
 
         // 동시에 진동 애니메이션
@@ -57,33 +59,35 @@ public class UltimateUIManager : MonoBehaviour
         // 잠시 대기
         yield return new WaitForSeconds(displayDuration);
 
-        // 퇴장 연출: 슬라이드 아웃
-        t = 0f;
-        while (t < slideDuration)
+        // 화면 중앙에서 이제 startOffset 을 빼면 반대방향으로 가겟지?
+        fTime = 0f;
+        while (fTime < slideDuration)
         {
-            t += Time.deltaTime;
-            cutInRect.anchoredPosition = Vector2.Lerp(endPosition, endPosition - startOffset, t / slideDuration);
+            fTime += Time.deltaTime;
+
+            cutInRect.anchoredPosition = Vector2.Lerp(endPosition, endPosition - startOffset, fTime / slideDuration);
+
             yield return null;
         }
 
         cutInRect.gameObject.SetActive(false);
 
-        // 궁극기 발사
         onCutInFinished?.Invoke();
     }
 
-    private IEnumerator ShakeImage(RectTransform target, float duration, float magnitude)
+    private IEnumerator ShakeImage(RectTransform target, float fDuration, float fMagnitude)
     {
         Vector3 originalPos = target.localPosition;
-        float elapsed = 0f;
 
-        while (elapsed < duration)
+        float fElapsed = 0f;
+
+        while (fElapsed < fDuration)
         {
-            float offsetX = Random.Range(-1f, 1f) * magnitude;
-            float offsetY = Random.Range(-1f, 1f) * magnitude;
-            target.localPosition = originalPos + new Vector3(offsetX, offsetY, 0f);
+            float fOffsetX = Random.Range(-1f, 1f) * fMagnitude;
+            float fOffsetY = Random.Range(-1f, 1f) * fMagnitude;
+            target.localPosition = originalPos + new Vector3(fOffsetX, fOffsetY, 0f);
 
-            elapsed += Time.deltaTime;
+            fElapsed += Time.deltaTime;
             yield return null;
         }
 
@@ -92,15 +96,17 @@ public class UltimateUIManager : MonoBehaviour
 
     public void OnChargeButtonPressed()
     {
-        var player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
-            player.OnChargeButtonPressed();
+        var playerController = FindFirstObjectByType<PlayerController>();
+
+        if (playerController != null)
+            playerController.OnChargeButtonPressed();
     }
 
     public void OnChargeButtonReleased()
     {
-        var player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
-            player.OnChargeButtonReleased();
+        var playerController = FindFirstObjectByType<PlayerController>();
+
+        if (playerController != null)
+            playerController.OnChargeButtonReleased();
     }
 }

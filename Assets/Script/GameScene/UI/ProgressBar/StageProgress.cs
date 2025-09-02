@@ -95,8 +95,8 @@ public class StageProgress : MonoBehaviourPun
             GameObject boss = PhotonNetwork.Instantiate(bossPrefabName, bossSpawnPosition, Quaternion.identity);
             BossController bc = boss.GetComponent<BossController>();
 
-            bc.hpFillImage = bossHpFillImage;
-            bc.bossHpPanel = bossHpPanel;
+            bc.imgHpFill = bossHpFillImage;
+            bc.goBossHpPanel = bossHpPanel;
 
             bc.photonView.RPC("InitBossUI", RpcTarget.AllBuffered);
             bc.StartBossBattle();

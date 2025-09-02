@@ -6,70 +6,63 @@ using System.Collections;
 public class BossController : MonoBehaviourPunCallbacks
 {
     [Header("보스 체력 설정")]
-    public float maxHP = 1000f;
-    private float currentHP;
-    private float targetHP;
+    public float fMaxHP = 1000f;
+    private float fCurrentHP;
+    private float fTargetHP;
 
     [Header("HP 패널 오브젝트 (SetActive 용)")]
-    [HideInInspector] public GameObject bossHpPanel;
+    [HideInInspector] public GameObject goBossHpPanel;
 
     [Header("HP 이미지 연결 (Fill 방식 Image)")]
-    [HideInInspector] public Image hpFillImage;
+    [HideInInspector] public Image imgHpFill;
 
     [Header("탄막 프리팹 경로 (Resources 폴더 안)")]
-    public string bulletPrefabPath = "Boss/BossBulletPrefab";
+    public string strBulletPrefabPath = "Boss/BossBulletPrefab";
 
     [Header("탄막 발사 위치")]
-    public Transform firePoint;
+    public Transform trFirePoint;
 
-    private Material bossMat;
-    private Coroutine flashLoopRoutine;
-    private float lastLaserHitTime = 0f;
-    public float laserDamageCooldown = 0.2f;
+    private Material matBoss;
+    private Coroutine coFlashLoop;
+    private float fLastLaserHitTime = 0f;
+    public float fLaserDamageCooldown = 0.2f;
 
     private void Awake()
     {
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            bossMat = Instantiate(sr.material); // 인스턴스 생성하여 공유 방지
-            sr.material = bossMat;
-        }
-        else
-        {
-            Debug.LogWarning("SpriteRenderer가 없습니다.");
-        }
+        if (sr == null) return;
+
+        matBoss = Instantiate(sr.material);
+        sr.material = matBoss;
     }
 
     private void Start()
     {
-        currentHP = maxHP;
-        targetHP = maxHP;
+        fCurrentHP = fMaxHP;
+        fTargetHP = fMaxHP;
 
-        if (hpFillImage != null)
-            hpFillImage.fillAmount = 1f;
+        if (imgHpFill != null)
+            imgHpFill.fillAmount = 1f;
     }
 
     private void Update()
     {
-        if (hpFillImage != null)
-        {
-            float currentFill = hpFillImage.fillAmount;
-            float targetFill = Mathf.Clamp01(targetHP / maxHP);
-            hpFillImage.fillAmount = Mathf.Lerp(currentFill, targetFill, Time.deltaTime * 10f);
-        }
+        if (imgHpFill == null) return;
+
+        float fCurrentFill = imgHpFill.fillAmount;
+        float fTargetFill = Mathf.Clamp01(fTargetHP / fMaxHP);
+        imgHpFill.fillAmount = Mathf.Lerp(fCurrentFill, fTargetFill, Time.deltaTime * 10f);
     }
 
     public void StartBossBattle()
     {
-        if (bossHpPanel != null)
-        {
-            Transform bg = bossHpPanel.transform.Find("BossHp_BG");
-            Transform fill = bossHpPanel.transform.Find("BossHp_Fill");
+        if (goBossHpPanel == null) return;
 
-            if (bg) bg.gameObject.SetActive(true);
-            if (fill) fill.gameObject.SetActive(true);
-        }
+        Transform trBg = goBossHpPanel.transform.Find("BossHp_BG");
+        Transform trFill = goBossHpPanel.transform.Find("BossHp_Fill");
+
+        if (trBg) trBg.gameObject.SetActive(true);
+        if (trFill) trFill.gameObject.SetActive(true);
 
         StartCoroutine(BossAttackPattern());
     }
@@ -77,120 +70,104 @@ public class BossController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void InitBossUI()
     {
-        bossHpPanel = GameObject.Find("BossHp_Panel");
+        goBossHpPanel = GameObject.Find("BossHp_Panel");
+        if (goBossHpPanel == null) return;
 
-        if (bossHpPanel)
+        goBossHpPanel.SetActive(true);
+
+        Transform trBg = goBossHpPanel.transform.Find("BossHp_BG");
+        Transform trFill = goBossHpPanel.transform.Find("BossHp_Fill");
+
+        if (trBg) trBg.gameObject.SetActive(true);
+        if (trFill)
         {
-            bossHpPanel.SetActive(true);
-
-            Transform bg = bossHpPanel.transform.Find("BossHp_BG");
-            Transform fill = bossHpPanel.transform.Find("BossHp_Fill");
-
-            if (bg) bg.gameObject.SetActive(true);
-            if (fill)
-            {
-                fill.gameObject.SetActive(true);
-                hpFillImage = fill.GetComponent<Image>();
-            }
+            trFill.gameObject.SetActive(true);
+            imgHpFill = trFill.GetComponent<Image>();
         }
     }
 
     [PunRPC]
-    public void TakeDamage(float damage)
+    public void TakeDamage(float fDamage)
     {
-        if (!PhotonNetwork.IsMasterClient || currentHP <= 0f) return;
+        if (!PhotonNetwork.IsMasterClient || fCurrentHP <= 0f) return;
 
-        lastLaserHitTime = Time.time;
-        currentHP -= damage;
+        fLastLaserHitTime = Time.time;
+        fCurrentHP -= fDamage;
+        fCurrentHP = Mathf.Max(fCurrentHP, 0f);
 
-        if (currentHP <= 0f)
+        photonView.RPC("UpdateHP", RpcTarget.All, fCurrentHP);
+
+        if (fCurrentHP <= 0f)
         {
-            currentHP = 0f;
-            photonView.RPC("UpdateHP", RpcTarget.All, 0f);
             Die();
+            return;
         }
-        else
-        {
-            photonView.RPC("UpdateHP", RpcTarget.All, currentHP);
-            photonView.RPC("StartHitFlashLoop", RpcTarget.All);
-            StartCoroutine(StopHitFlashAfterDelay(0.1f));
-        }
+
+        photonView.RPC("StartHitFlashLoop", RpcTarget.All);
+        StartCoroutine(StopHitFlashAfterDelay(0.1f));
     }
 
-    private IEnumerator StopHitFlashAfterDelay(float delay)
+    private IEnumerator StopHitFlashAfterDelay(float fDelay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(fDelay);
         photonView.RPC("StopHitFlashLoop", RpcTarget.All);
     }
 
     [PunRPC]
-    void UpdateHP(float hp)
+    void UpdateHP(float fHp)
     {
-        currentHP = hp;
-        targetHP = hp;
+        fCurrentHP = fHp;
+        fTargetHP = fHp;
     }
 
     [PunRPC]
     void StartHitFlashLoop()
     {
-        if (flashLoopRoutine != null)
-            StopCoroutine(flashLoopRoutine);
+        if (coFlashLoop != null)
+            StopCoroutine(coFlashLoop);
 
-        flashLoopRoutine = StartCoroutine(HitFlashLoop());
+        coFlashLoop = StartCoroutine(HitFlashLoop());
     }
 
     [PunRPC]
     void StopHitFlashLoop()
     {
-        if (flashLoopRoutine != null)
-            StopCoroutine(flashLoopRoutine);
+        if (coFlashLoop != null)
+            StopCoroutine(coFlashLoop);
 
-        flashLoopRoutine = null;
+        coFlashLoop = null;
 
-        if (bossMat != null)
-            bossMat.SetFloat("_WhiteAmount", 0f);
+        if (matBoss != null)
+            matBoss.SetFloat("_WhiteAmount", 0f);
     }
 
     IEnumerator HitFlashLoop()
     {
         while (true)
         {
-            if (bossMat != null)
-            {
-                bossMat.SetFloat("_WhiteAmount", 1f);
-                yield return new WaitForSeconds(0.05f);
-                bossMat.SetFloat("_WhiteAmount", 0f);
-                yield return new WaitForSeconds(0.05f);
-            }
-            else
-            {
-                yield break;
-            }
+            if (matBoss == null) yield break;
+
+            matBoss.SetFloat("_WhiteAmount", 1f);
+            yield return new WaitForSeconds(0.05f);
+
+            matBoss.SetFloat("_WhiteAmount", 0f);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
     void Die()
     {
-        //if (bossHpPanel)
-        //    bossHpPanel.SetActive(false);
-
-        //if (PhotonNetwork.IsMasterClient)
-        //    PhotonNetwork.Destroy(gameObject);
-
-        // 모든 클라이언트에서 UI 비활성화
         photonView.RPC("HideBossUI", RpcTarget.All);
 
         if (PhotonNetwork.IsMasterClient)
-        {
             PhotonNetwork.Destroy(gameObject);
-        }
     }
 
     [PunRPC]
     void HideBossUI()
     {
-        if (bossHpPanel != null)
-            bossHpPanel.SetActive(false);
+        if (goBossHpPanel != null)
+            goBossHpPanel.SetActive(false);
     }
 
     public void OnLaserFinished()
@@ -202,9 +179,9 @@ public class BossController : MonoBehaviourPunCallbacks
     {
         while (true)
         {
-            int patternIndex = Random.Range(0, 3);
+            int iPatternIndex = Random.Range(0, 3);
 
-            switch (patternIndex)
+            switch (iPatternIndex)
             {
                 case 0: yield return StartCoroutine(Pattern_Circle()); break;
                 case 1: yield return StartCoroutine(Pattern_Spiral()); break;
@@ -217,17 +194,17 @@ public class BossController : MonoBehaviourPunCallbacks
 
     IEnumerator Pattern_Circle()
     {
-        Vector3 spawnPos = firePoint ? firePoint.position : transform.position;
-        int bulletCount = 36;
-        float angleStep = 360f / bulletCount;
+        Vector3 v3SpawnPos = trFirePoint ? trFirePoint.position : transform.position;
+        int iBulletCount = 36;
+        float fAngleStep = 360f / iBulletCount;
 
-        for (int i = 0; i < bulletCount; i++)
+        for (int i = 0; i < iBulletCount; i++)
         {
-            float angle = i * angleStep * Mathf.Deg2Rad;
-            Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+            float fAngle = i * fAngleStep * Mathf.Deg2Rad;
+            Vector3 v3Dir = new Vector3(Mathf.Cos(fAngle), Mathf.Sin(fAngle), 0f);
 
-            GameObject bullet = PhotonNetwork.Instantiate(bulletPrefabPath, spawnPos, Quaternion.identity);
-            bullet.GetComponent<BossBullet>()?.SetDirection(dir);
+            GameObject goBullet = PhotonNetwork.Instantiate(strBulletPrefabPath, v3SpawnPos, Quaternion.identity);
+            goBullet.GetComponent<BossBullet>()?.SetDirection(v3Dir);
         }
 
         yield return null;
@@ -235,17 +212,17 @@ public class BossController : MonoBehaviourPunCallbacks
 
     IEnumerator Pattern_Spiral()
     {
-        Vector3 spawnPos = firePoint ? firePoint.position : transform.position;
-        float startAngle = Random.Range(0f, 360f);
+        Vector3 v3SpawnPos = trFirePoint ? trFirePoint.position : transform.position;
+        float fStartAngle = Random.Range(0f, 360f);
 
         for (int i = 0; i < 36; i++)
         {
-            float angle = startAngle + i * 10f;
-            float rad = angle * Mathf.Deg2Rad;
-            Vector3 dir = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f);
+            float fAngle = fStartAngle + i * 10f;
+            float fRad = fAngle * Mathf.Deg2Rad;
+            Vector3 v3Dir = new Vector3(Mathf.Cos(fRad), Mathf.Sin(fRad), 0f);
 
-            GameObject bullet = PhotonNetwork.Instantiate(bulletPrefabPath, spawnPos, Quaternion.identity);
-            bullet.GetComponent<BossBullet>()?.SetDirection(dir);
+            GameObject goBullet = PhotonNetwork.Instantiate(strBulletPrefabPath, v3SpawnPos, Quaternion.identity);
+            goBullet.GetComponent<BossBullet>()?.SetDirection(v3Dir);
 
             yield return new WaitForSeconds(0.05f);
         }
@@ -253,19 +230,19 @@ public class BossController : MonoBehaviourPunCallbacks
 
     IEnumerator Pattern_Shotgun()
     {
-        Vector3 spawnPos = firePoint ? firePoint.position : transform.position;
-        int bulletCount = 10;
-        float spreadAngle = 45f;
-        float baseAngle = -spreadAngle / 2f;
+        Vector3 v3SpawnPos = trFirePoint ? trFirePoint.position : transform.position;
+        int iBulletCount = 10;
+        float fSpreadAngle = 45f;
+        float fBaseAngle = -fSpreadAngle / 2f;
 
-        for (int i = 0; i < bulletCount; i++)
+        for (int i = 0; i < iBulletCount; i++)
         {
-            float angle = baseAngle + i * (spreadAngle / (bulletCount - 1));
-            float rad = angle * Mathf.Deg2Rad;
-            Vector3 dir = new Vector3(Mathf.Sin(rad), -Mathf.Cos(rad), 0f);
+            float fAngle = fBaseAngle + i * (fSpreadAngle / (iBulletCount - 1));
+            float fRad = fAngle * Mathf.Deg2Rad;
+            Vector3 v3Dir = new Vector3(Mathf.Sin(fRad), -Mathf.Cos(fRad), 0f);
 
-            GameObject bullet = PhotonNetwork.Instantiate(bulletPrefabPath, spawnPos, Quaternion.identity);
-            bullet.GetComponent<BossBullet>()?.SetDirection(dir);
+            GameObject goBullet = PhotonNetwork.Instantiate(strBulletPrefabPath, v3SpawnPos, Quaternion.identity);
+            goBullet.GetComponent<BossBullet>()?.SetDirection(v3Dir);
         }
 
         yield return null;

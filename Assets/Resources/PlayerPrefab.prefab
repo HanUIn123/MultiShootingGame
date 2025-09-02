@@ -175,9 +175,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbf91289bd938a247bab42070c5e7531, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  fireCooldown: 0.05
-  chargeSpeed: 1.5
+  fMoveSpeed: 6
+  fFireCooldown: 0.25
+  fChargeSpeed: 1.5
   laserPrefabPath: UltimateLaser
   ultimateUI: {fileID: 0}
 --- !u!61 &601354079066221781
