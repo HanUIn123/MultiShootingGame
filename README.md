@@ -22,7 +22,7 @@
 - 방 생성과 참가 기능을 구현하였습니다.
 - PhotonNetwork.Instantiate를 활용하여 플레이어, 총알, 보스 오브젝트를 네트워크로 동기화하였습니다.
 - RPC 호출을 통해 보스 HP, 채팅 메시지 등을 모든 클라이언트에 공유하였습니다.
-
+- ![Geometry Shader 연출](./Unity_Shorts/JoinRoom.gif)
 ### 2. 채팅 시스템
 - TMP_InputField + ScrollRect 기반 채팅창을 구현하였습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송되도록 하였습니다.
