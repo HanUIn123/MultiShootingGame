@@ -22,12 +22,12 @@
 - 방 생성과 참가 기능을 구현하였습니다.
 - PhotonNetwork.Instantiate를 활용하여 플레이어, 총알, 보스 오브젝트를 네트워크로 동기화했습니다.
 - RPC 호출을 통해 보스 HP, 채팅 메시지 등을 모든 클라이언트에 공유합니다.
-- ![Geometry Shader 연출](./Unity_Shorts/JoinRoom.gif)
+- ![Geometry Shader 연출](./Unity_Shorts/JoinRoom2.gif)
 ### 2. 채팅 시스템
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송됩니다.
 - 입력창이 포커스된 동안은 캐릭터 조작 입력이 되지 않게끔 예외처리를 했습니다.
-- ![Geometry Shader 연출](./Unity_Shorts/Chatting3.gif)
+- ![Geometry Shader 연출](./Unity_Shorts/Chatting4.gif)
 
 ### 3. 플레이어 컨트롤
 - Unity New Input System 기반으로 이동 / 공격 / 궁극기 기능을 수행합니다.
@@ -46,7 +46,7 @@
 - "Laser Shader"는 노이즈 기반 흔들림과 발광 효과를 적용시켰습니다..
 - "보스 출몰 경고 UI"는 일정시간 동안 sprite 이미지 전체가 setActive true/false를 반복시켰습니다.
 - "스테이지 진행바, 플레이어 체력바, 보스 체력바 UI" 들은 에디터에서 Image 의 Fill 타입을 통해, 코드로 줄거나 늘어나게 했습니다.
-- ![Geometry Shader 연출](./Unity_Shorts/Ultimate.gif) ![Geometry Shader 연출](./Unity_Shorts/Boss.gif) 
+- ![Geometry Shader 연출](./Unity_Shorts/Ultimate2.gif) ![Geometry Shader 연출](./Unity_Shorts/Boss2.gif) 
 ---
 
 ## ■ 구현 파트 핵심 요약
