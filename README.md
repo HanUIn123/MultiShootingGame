@@ -1,3 +1,12 @@
+<!-- 기술 배지 -->
+![Unity](https://img.shields.io/badge/Unity-000000?style=for-the-badge&logo=unity&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)
+![Photon](https://img.shields.io/badge/Photon%20Server-00BFFF?style=for-the-badge&logo=photon&logoColor=white)
+![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio%202022-5C2D91?style=for-the-badge&logo=visualstudio&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows%20API-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+
+
 # Unity 멀티 슈팅 게임 (PUN2 기반 2D 게임)
 
 ## ■ 개요
