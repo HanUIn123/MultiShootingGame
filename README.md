@@ -29,16 +29,16 @@
 ├── 📂 <b>Script</b>
 │   ├── 📂 <b>LogoScene</b>
 │   │   ├── <a href="./Assets/Script/LogoScene/NetworkManager.cs">NetworkManager.cs</a> (방 생성/참가 및 네트워크 초기화 핵심 로직)
-│   │   └── <a href="./Assets/Script/LogoScene/SceneTransitionManager.cs">SceneTransitionManager.cs</a> (씬 전환 및 네트워크 상태 유지 관리)
+│   │   └── <a href="./Assets/Script/LogoScene/SceneTransitionManager.cs">SceneTransitionManager.cs</a> (씬 전환 수행 및 카메라 암막 연출 호출)
 │   ├── 📂 <b>SelectScene</b>
 │   │   └── <a href="./Assets/Script/SelectScene/CharacterSelector.cs">CharacterSelector.cs</a> (캐릭터 선택 및 데이터 동기화)
 │   └── 📂 <b>GameScene</b>
 │       ├── <a href="./Assets/Script/GameScene/ChatManager.cs">ChatManager.cs</a> (RPC 기반 실시간 채팅 시스템)
-│       ├── <a href="./Assets/Script/GameScene/DamageText.cs">DamageText.cs</a> (대미지 수치 UI 연출)
-│       ├── <a href="./Assets/Script/GameScene/GameSceneInitializer.cs">GameSceneInitializer.cs</a> (게임 월드 초기 설정)
-│       ├── <a href="./Assets/Script/GameScene/GameSceneManager.cs">GameSceneManager.cs</a> (게임 전체 흐름 및 승패 관리)
+│       ├── <a href="./Assets/Script/GameScene/DamageText.cs">DamageText.cs</a> (데미지 수치 UI 연출)
+│       ├── <a href="./Assets/Script/GameScene/GameSceneInitializer.cs">GameSceneInitializer.cs</a> (게임 씬 초기 설정)
+│       ├── <a href="./Assets/Script/GameScene/GameSceneManager.cs">GameSceneManager.cs</a> (게임 씬 흐름 관리)
 │       ├── <a href="./Assets/Script/GameScene/MonsterManager.cs">MonsterManager.cs</a> (몬스터 그룹 관리)
-│       ├── <a href="./Assets/Script/GameScene/MonsterSpawner.cs">MonsterSpawner.cs</a> (네트워크 기반 몬스터 생성)
+│       ├── <a href="./Assets/Script/GameScene/MonsterSpawner.cs">MonsterSpawner.cs</a> (몬스터 생성 관리)
 │       └── <a href="./Assets/Script/GameScene/PunObjectPool.cs">PunObjectPool.cs</a> (Photon 환경 오브젝트 풀링)
 └── 📂 <b>Resources</b>
     ├── 📂 <b>Boss</b>
@@ -51,11 +51,11 @@
     │   ├── <a href="./Assets/Resources/Item/Item.cs">Item.cs</a> (아이템 습득 및 효과 적용)
     │   └── <a href="./Assets/Resources/Item/ItemManager.cs">ItemManager.cs</a> (아이템 드랍 및 관리)
     ├── 📂 <b>Monster</b>
-    │   ├── <a href="./Assets/Resources/Monster/MonsterBullet.cs">MonsterBullet.cs</a> (몬스터 전용 투사체)
+    │   ├── <a href="./Assets/Resources/Monster/MonsterBullet.cs">MonsterBullet.cs</a> (몬스터 전용 총알)
     │   └── <a href="./Assets/Resources/Monster/MonsterController.cs">MonsterController.cs</a> (일반 몬스터 AI)
-    ├── <a href="./Assets/Resources/BandLaser.cs">BandLaser.cs</a> (궁극기 레이저 셰이더 제어)
+    ├── <a href="./Assets/Resources/BandLaser.cs">BandLaser.cs</a> ( 레이저 공격 패턴 )
     ├── <a href="./Assets/Resources/Bullet.cs">Bullet.cs</a> (기본 탄환 로직)
-    ├── <a href="./Assets/Resources/LaserController.cs">LaserController.cs</a> (레이저 발사 시퀀스 제어)
+    ├── <a href="./Assets/Resources/LaserController.cs">LaserController.cs</a> (궁극기 발사 시퀀스 제어)
     ├── <a href="./Assets/Resources/PlayerController.cs">PlayerController.cs</a> (플레이어 조작 및 동기화)
     └── <a href="./Assets/Resources/PlayerHealth.cs">PlayerHealth.cs</a> (플레이어 체력 시스템)
 </pre>
