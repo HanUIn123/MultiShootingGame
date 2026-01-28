@@ -8,26 +8,26 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IGamePlayActions, IPunObservable
 {
-    // IPunObservable: ³» Ä³¸¯ÅÍÀÇ À§Ä¡, Ã¼·Â, »óÅÂ °°Àº °ªµéÀ» ³×Æ®¿öÅ©¸¦ ÅëÇØ ´Ù¸¥ »ç¶÷µé¿¡°Ô ½Ç½Ã°£À¸·Î º¸¿©ÁÖ°Å³ª, ¼ö½Å.
+    // IPunObservable: ë‚´ ìºë¦­í„°ì˜ ìœ„ì¹˜, ì²´ë ¥, ìƒíƒœ ê°™ì€ ê°’ë“¤ì„ ë„¤íŠ¸ì›Œí¬ë¥¼ í†µí•´ ë‹¤ë¥¸ ì‚¬ëŒë“¤ì—ê²Œ ì‹¤ì‹œê°„ìœ¼ë¡œ ë³´ì—¬ì£¼ê±°ë‚˜, ìˆ˜ì‹ .
     private Player_InputAction                                          m_compInput;
     private PhotonView                                                  m_photonView;
     private ChatManager                                                 m_compChatManager;
     private Animator                                                    m_animator;
 
-    [Header("ÀÌµ¿ ¹× °ø°İ ¼³Á¤")]
+    [Header("ì´ë™ ë° ê³µê²© ì„¤ì •")]
     [SerializeField] private float                                      m_fMoveSpeed = 6f;
     [SerializeField] private float                                      m_fFireCooldown = 1.0f;
     private float                                                       m_fLastFireTime;
     private Vector2                                                     v2MoveInput;
 
-    [Header("°ø°İ Á¦ÇÑ ¼³Á¤")]
-    [SerializeField] private float                                      m_fMinFireCooldown = 0.05f; // ÃÖ¼Ò °ø°İ ¼Óµµ ÄğÅ¸ÀÓ Á¦ÇÑ
+    [Header("ê³µê²© ì œí•œ ì„¤ì •")]
+    [SerializeField] private float                                      m_fMinFireCooldown = 0.05f; // ìµœì†Œ ê³µê²© ì†ë„ ì¿¨íƒ€ì„ ì œí•œ
 
-    [Header("Æ÷ÀÎÆ® ¼³Á¤")]
+    [Header("í¬ì¸íŠ¸ ì„¤ì •")]
     [SerializeField] private Transform                                  trFirePoint;
     [SerializeField] private Transform                                  trLaserSpawn;
 
-    [Header("±Ã±Ø±â(Fever) ¼³Á¤")]
+    [Header("ê¶ê·¹ê¸°(Fever) ì„¤ì •")]
     [SerializeField] private float                                      m_fChargeSpeed = 1.5f;
     [SerializeField] private string                                     m_strLaserPath = "UltimateLaser";
     private float                                                       m_fCurrentGauge = 0f;
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
     private float                                                       m_fCurrentAttackLevel = 0f;
     private float                                                       m_fCurrentSpeedLevel = 0f;
 
-    [Header("Ä³¸¯ÅÍ ¼³Á¤")]
+    [Header("ìºë¦­í„° ì„¤ì •")]
     [SerializeField] private int                                        m_iCharacterType = 1;
 
     private List<Transform>                                             m_targetList = new List<Transform>();
@@ -48,28 +48,28 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
     private SpriteRenderer                                              m_compSprite;
     private Vector3                                                     m_v3CurrentPos;
 
-    // Æ÷ÅæÀÇ ½Ç½Ã°£ µ¥ÀÌÅÍ µ¿±âÈ­ ÇÔ¼ö 
+    // í¬í†¤ì˜ ì‹¤ì‹œê°„ ë°ì´í„° ë™ê¸°í™” í•¨ìˆ˜ 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        // stream.IsWriting (µ¥ÀÌÅÍ º¸³»±â)
-        // ¿ªÇÒ: "³»°¡ ³» Ä³¸¯ÅÍÀÇ ÁÖÀÎÀÏ ¶§" ½ÇÇà.
-        // µ¿ÀÛ: ³» ÄÄÇ»ÅÍ¿¡¼­ ¹Ù²ï °ÔÀÌÁö °ª(m_fCurrentAttackLevel µî)À» ¼­¹ö·Î ½ô.
-        // ºñÀ¯: ³»°¡ Áö±İ ÇÇÀÚ¸¦ ¾ó¸¶³ª ¸Ô¾ú´ÂÁö Ä£±¸µéÇÑÅ× Ä«ÅåÀ¸·Î ½Ç½Ã°£ º¸°íÇÏ´Â °Í.
+        // stream.IsWriting (ë°ì´í„° ë³´ë‚´ê¸°)
+        // ì—­í• : "ë‚´ê°€ ë‚´ ìºë¦­í„°ì˜ ì£¼ì¸ì¼ ë•Œ" ì‹¤í–‰.
+        // ë™ì‘: ë‚´ ì»´í“¨í„°ì—ì„œ ë°”ë€ ê²Œì´ì§€ ê°’(m_fCurrentAttackLevel ë“±)ì„ ì„œë²„ë¡œ ì¨.
+        // ë¹„ìœ : ë‚´ê°€ ì§€ê¸ˆ í”¼ìë¥¼ ì–¼ë§ˆë‚˜ ë¨¹ì—ˆëŠ”ì§€ ì¹œêµ¬ë“¤í•œí…Œ ì¹´í†¡ìœ¼ë¡œ ì‹¤ì‹œê°„ ë³´ê³ í•˜ëŠ” ê²ƒ.
         if (stream.IsWriting)
         {
             stream.SendNext(m_fCurrentGauge);
-            stream.SendNext(m_fCurrentAttackLevel); // Ãß°¡
-            stream.SendNext(m_fCurrentSpeedLevel);  // Ãß°¡
+            stream.SendNext(m_fCurrentAttackLevel); // ì¶”ê°€
+            stream.SendNext(m_fCurrentSpeedLevel);  // ì¶”ê°€
         }
         else
         {
-            //else ºÎºĞ (stream.IsReading) (µ¥ÀÌÅÍ ¹Ş±â)
-            //¿ªÇÒ: "³»°¡ ´Ù¸¥ »ç¶÷ÀÇ Ä³¸¯ÅÍ¸¦ º¸°í ÀÖÀ» ¶§" ½ÇÇà.
-            //µ¿ÀÛ: ¼­¹ö¿¡¼­ ³¯¾Æ¿Â »ó´ë¹æÀÇ °ÔÀÌÁö °ªÀ» ³» º¯¼ö¿¡ ³ÖÀ½.
-            //ºñÀ¯: Ä£±¸°¡ Ä«ÅåÀ¸·Î º¸³½ "ÇÇÀÚ 3Á¶°¢ ¸ÔÀ½"ÀÌ¶ó´Â ¸Ş½ÃÁö¸¦ ³»°¡ ÀĞ¾î¼­ ³» ¸Ó¸´¼Ó Á¤º¸¸¦ ¾÷µ¥ÀÌÆ®ÇÏ´Â »óÈ².
+            //else ë¶€ë¶„ (stream.IsReading) (ë°ì´í„° ë°›ê¸°)
+            //ì—­í• : "ë‚´ê°€ ë‹¤ë¥¸ ì‚¬ëŒì˜ ìºë¦­í„°ë¥¼ ë³´ê³  ìˆì„ ë•Œ" ì‹¤í–‰.
+            //ë™ì‘: ì„œë²„ì—ì„œ ë‚ ì•„ì˜¨ ìƒëŒ€ë°©ì˜ ê²Œì´ì§€ ê°’ì„ ë‚´ ë³€ìˆ˜ì— ë„£ìŒ.
+            //ë¹„ìœ : ì¹œêµ¬ê°€ ì¹´í†¡ìœ¼ë¡œ ë³´ë‚¸ "í”¼ì 3ì¡°ê° ë¨¹ìŒ"ì´ë¼ëŠ” ë©”ì‹œì§€ë¥¼ ë‚´ê°€ ì½ì–´ì„œ ë‚´ ë¨¸ë¦¿ì† ì •ë³´ë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” ìƒí™©.
             this.m_fCurrentGauge = (float)stream.ReceiveNext();
-            this.m_fCurrentAttackLevel = (float)stream.ReceiveNext(); // Ãß°¡
-            this.m_fCurrentSpeedLevel = (float)stream.ReceiveNext();  // Ãß°¡
+            this.m_fCurrentAttackLevel = (float)stream.ReceiveNext(); // ì¶”ê°€
+            this.m_fCurrentSpeedLevel = (float)stream.ReceiveNext();  // ì¶”ê°€
         }
     }
 
@@ -88,11 +88,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
         m_animator = GetComponent<Animator>();
 
-        // ¼ÒÀ¯±Ç »ó°ü¾øÀÌ ÀÏ´Ü ÀÌ ¿ÀºêÁ§Æ® ÀÚÃ¼°¡ ¾À ÀüÈ¯ ½Ã ÆÄ±«µÇÁö ¾Ê°Ô º¸È£
-        // ÀÌ°Ô ¾øÀ¸¸é ÆÀ¿øÀÌ ´Ê°Ô µé¾î¿Ã ¶§ ÀÌ¹Ì »ı¼ºµÈ ¹æÀå ±âÃ¼¸¦ À¯´ÏÆ¼°¡ Áö¿ö¹ö¸²
+        // ì†Œìœ ê¶Œ ìƒê´€ì—†ì´ ì¼ë‹¨ ì´ ì˜¤ë¸Œì íŠ¸ ìì²´ê°€ ì”¬ ì „í™˜ ì‹œ íŒŒê´´ë˜ì§€ ì•Šê²Œ ë³´í˜¸
+        // ì´ê²Œ ì—†ìœ¼ë©´ íŒ€ì›ì´ ëŠ¦ê²Œ ë“¤ì–´ì˜¬ ë•Œ ì´ë¯¸ ìƒì„±ëœ ë°©ì¥ ê¸°ì²´ë¥¼ ìœ ë‹ˆí‹°ê°€ ì§€ì›Œë²„ë¦¼
         DontDestroyOnLoad(gameObject);
 
-        // ³» ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ°¡ ¾Æ´Ï¶ó¸é, ¸ğ½ÀÀ» °¨Ãá´Ù..
+        // ë‚´ í”Œë ˆì´ì–´ ìºë¦­í„°ê°€ ì•„ë‹ˆë¼ë©´, ëª¨ìŠµì„ ê°ì¶˜ë‹¤..
         if (!m_photonView.IsMine)
         {
             SetVisible(false);
@@ -107,22 +107,22 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     private void Start()
     {
-        // Ã³À½ »ı¼ºµÉ ¶§ ¾À »óÅÂ Ã¼Å©
+        // ì²˜ìŒ ìƒì„±ë  ë•Œ ì”¬ ìƒíƒœ ì²´í¬
         RefreshSceneState();
     }
 
-    #region Input ½Ã½ºÅÛ È°¼ºÈ­ Á¦¾î
+    #region Input ì‹œìŠ¤í…œ í™œì„±í™” ì œì–´
     private new void OnEnable()
     {
-        //C++¿¡¼­ ºÎ¸ğ Å¬·¡½ºÀÇ °¡»ó ÇÔ¼ö¸¦ È£Ãâ (base °¡, __super :: °°Àº°Å ) 
+        //C++ì—ì„œ ë¶€ëª¨ í´ë˜ìŠ¤ì˜ ê°€ìƒ í•¨ìˆ˜ë¥¼ í˜¸ì¶œ (base ê°€, __super :: ê°™ì€ê±° ) 
         base.OnEnable();
 
-        // µ¨¸®°ÔÀÌÆ®(Delegate) / ÀÌº¥Æ®(Event) ¹®¹ı
-        // C#¿¡¼­´Â "ÀÌ ÇÔ¼ö Æ÷ÀÎÅÍ ¸ñ·Ï¿¡ ³» ÇÔ¼ö¸¦ Ãß°¡ÇØ¶ó"¶ó´Â ¶æ
-        // ¾À ·Îµå°¡ ¿Ï·áµÇ´Â »ç°Ç(sceneLoaded)ÀÌ ¹ß»ıÇÏ¸é, ³»°¡ ¸¸µç OnSceneLoaded ÇÔ¼öµµ °°ÀÌ ½ÇÇà
+        // ë¸ë¦¬ê²Œì´íŠ¸(Delegate) / ì´ë²¤íŠ¸(Event) ë¬¸ë²•
+        // C#ì—ì„œëŠ” "ì´ í•¨ìˆ˜ í¬ì¸í„° ëª©ë¡ì— ë‚´ í•¨ìˆ˜ë¥¼ ì¶”ê°€í•´ë¼"ë¼ëŠ” ëœ»
+        // ì”¬ ë¡œë“œê°€ ì™„ë£Œë˜ëŠ” ì‚¬ê±´(sceneLoaded)ì´ ë°œìƒí•˜ë©´, ë‚´ê°€ ë§Œë“  OnSceneLoaded í•¨ìˆ˜ë„ ê°™ì´ ì‹¤í–‰
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        // ¼ÒÀ¯±ÇÀÌ È®½ÇÇÏ¸é, ÀÔ·Â ÇÒ ¼ö ÀÖ°Ô ²û.
+        // ì†Œìœ ê¶Œì´ í™•ì‹¤í•˜ë©´, ì…ë ¥ í•  ìˆ˜ ìˆê²Œ ë”.
         if (m_photonView != null && m_photonView.IsMine)
         {
             m_compInput.GamePlay.Enable();
@@ -142,7 +142,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // ¾À ·Îµå°¡ ³¡³µÀ¸´Ï ÀÌÁ¦ ½×¿©ÀÖ´ø ¼­¹ö ¸Ş½ÃÁö(SetStartTime µî)¸¦ Ã³¸®ÇØ¶ó!
+        // ì”¬ ë¡œë“œê°€ ëë‚¬ìœ¼ë‹ˆ ì´ì œ ìŒ“ì—¬ìˆë˜ ì„œë²„ ë©”ì‹œì§€(SetStartTime ë“±)ë¥¼ ì²˜ë¦¬í•´ë¼!
         PhotonNetwork.IsMessageQueueRunning = true;
 
         if (m_photonView == null)
@@ -198,14 +198,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     private int CompareTargetDistance(Transform a, Transform b)
     {
-        // ¾î¶² ¸ó½ºÅÍ°¡ ´õ °¡±î¿î°¡, 
-        // ³» À§Ä¡(m_v3CurrentPos)¿Í ¸ó½ºÅÍ A, B »çÀÌÀÇ °Å¸®¸¦ °è»ê
-        // sqrMagnitude´Â ·çÆ® ¿¬»êÀ» ¾È ÇØ¼­ ¼º´ÉÀÌ ÈÎ¾À ºü¸£´Ù°í ÇÑ´Ù.
+        // ì–´ë–¤ ëª¬ìŠ¤í„°ê°€ ë” ê°€ê¹Œìš´ê°€, 
+        // ë‚´ ìœ„ì¹˜(m_v3CurrentPos)ì™€ ëª¬ìŠ¤í„° A, B ì‚¬ì´ì˜ ê±°ë¦¬ë¥¼ ê³„ì‚°
+        // sqrMagnitudeëŠ” ë£¨íŠ¸ ì—°ì‚°ì„ ì•ˆ í•´ì„œ ì„±ëŠ¥ì´ í›¨ì”¬ ë¹ ë¥´ë‹¤ê³  í•œë‹¤.
         float fDistA = (a.position - m_v3CurrentPos).sqrMagnitude;
         float fDistB = (b.position - m_v3CurrentPos).sqrMagnitude;
 
-        // µÎ °Å¸®¸¦ ºñ±³ÇØ¼­ °á°ú¸¦ ¹İÈ¯ (-1, 0, 1 Áß ÇÏ³ª)
-        // A°¡ ´õ °¡±î¿ì¸é ¾ÕÀ¸·Î º¸³»°í, B°¡ ´õ °¡±î¿ì¸é µÚ·Î º¸³À´Ï´Ù.
+        // ë‘ ê±°ë¦¬ë¥¼ ë¹„êµí•´ì„œ ê²°ê³¼ë¥¼ ë°˜í™˜ (-1, 0, 1 ì¤‘ í•˜ë‚˜)
+        // Aê°€ ë” ê°€ê¹Œìš°ë©´ ì•ìœ¼ë¡œ ë³´ë‚´ê³ , Bê°€ ë” ê°€ê¹Œìš°ë©´ ë’¤ë¡œ ë³´ëƒ…ë‹ˆë‹¤.
         return fDistA.CompareTo(fDistB);
     }
 
@@ -214,7 +214,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         if (m_compSprite != null)
             m_compSprite.enabled = isVisible;
 
-        // ÀÚ½Ä ¿ÀºêÁ§Æ®µéµµ °°ÀÌ ²¯/ÄÑ µÇ°Ô.
+        // ìì‹ ì˜¤ë¸Œì íŠ¸ë“¤ë„ ê°™ì´ ê»/ì¼œ ë˜ê²Œ.
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(isVisible);
@@ -224,7 +224,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     private void Update()
     {
-        // ³ªÀÇ ÇÃ·¹ÀÌ¾î°¡ ¾Æ´Ï¸é ½ÇÇàÇÏÁö ¾ÊÀ½.
+        // ë‚˜ì˜ í”Œë ˆì´ì–´ê°€ ì•„ë‹ˆë©´ ì‹¤í–‰í•˜ì§€ ì•ŠìŒ.
         if (!m_photonView.IsMine)
             return;
 
@@ -236,7 +236,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
         PreventMovement();
         HandleUltimateCharge();
-        HandleAutoFire(); // ¸Å ÇÁ·¹ÀÓ ÀÚµ¿ ¹ß»ç 
+        HandleAutoFire(); // ë§¤ í”„ë ˆì„ ìë™ ë°œì‚¬ 
     }
 
     private void HandleAutoFire()
@@ -246,9 +246,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
         if (Time.time - m_fLastFireTime >= m_fFireCooldown)
         {
-            if (m_iCharacterType == 2) // ·¹ÀÌÀú Ä³¸¯ÅÍÀÏ ¶§, 
+            if (m_iCharacterType == 2) // ë ˆì´ì € ìºë¦­í„°ì¼ ë•Œ, 
             {
-                // ½ºÇÇµå ·¹º§ -> »ç°Å¸® È®Àå. 
+                // ìŠ¤í”¼ë“œ ë ˆë²¨ -> ì‚¬ê±°ë¦¬ í™•ì¥. 
                 float fDetectRange = 4f + (m_fCurrentSpeedLevel * 4f);
                 Transform[] targets = GetNearestEnemies(fDetectRange);
 
@@ -258,7 +258,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
                     FireLaserMulti(targets);
                 }
             }
-            else // ÀÏ¹İ ±âÃ¼ (Type 1)
+            else // ì¼ë°˜ ê¸°ì²´ (Type 1)
             {
                 m_fLastFireTime = Time.time;
                 FireBullet(null);
@@ -266,42 +266,42 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         }
     }
 
-    // »ç°Å¸® ³»ÀÇ ¿©·¯ ÀûÀ» Ã£´Â ÇïÆÛ ÇÔ¼ö
+    // ì‚¬ê±°ë¦¬ ë‚´ì˜ ì—¬ëŸ¬ ì ì„ ì°¾ëŠ” í—¬í¼ í•¨ìˆ˜
     private Transform[] GetNearestEnemies(float fRange)
     {
         m_targetList.Clear();
         m_v3CurrentPos = transform.position;
         float fRangePowValue = fRange * fRange;
 
-        // ¾À ÀüÃ¼¸¦ µÚÁö´Â FindGameObjectsWithTag¸¦ »èÁ¦ÇÏ°í
-        // MonsterManager°¡ °ü¸®ÇÏ´Â AllMonsters ¸í´Ü¸¸ ·çÇÁ ¼öÇà.
+        // ì”¬ ì „ì²´ë¥¼ ë’¤ì§€ëŠ” FindGameObjectsWithTagë¥¼ ì‚­ì œí•˜ê³ 
+        // MonsterManagerê°€ ê´€ë¦¬í•˜ëŠ” AllMonsters ëª…ë‹¨ë§Œ ë£¨í”„ ìˆ˜í–‰.
         var allMonsters = MonsterManager.AllMonsters;
 
         for (int i = 0; i < allMonsters.Count; i++)
         {
             Transform trTarget = allMonsters[i];
 
-            // »èÁ¦ Áß ÀÎ Enemy°¡ ÀÖÀ» ¼ö µµ ÀÖÀ¸´Ï, 
+            // ì‚­ì œ ì¤‘ ì¸ Enemyê°€ ìˆì„ ìˆ˜ ë„ ìˆìœ¼ë‹ˆ, 
             if (trTarget == null)
                 continue;
 
-            // µÚ¿¡ ÀÖ°Å³ª ³Ê¹« ¸Ö¸é ÆĞ½º
+            // ë’¤ì— ìˆê±°ë‚˜ ë„ˆë¬´ ë©€ë©´ íŒ¨ìŠ¤
             float fDiffer = trTarget.position.y - m_v3CurrentPos.y;
 
             if (fDiffer < -0.5f || fDiffer > fRange)
                 continue;
 
-            // °Å¸® ÆÇÁ¤ (·çÆ® ¿¬»ê ¾ø´Â sqrMagnitude »ç¿ë)
+            // ê±°ë¦¬ íŒì • (ë£¨íŠ¸ ì—°ì‚° ì—†ëŠ” sqrMagnitude ì‚¬ìš©)
             float fDistancePow = ((Vector2)trTarget.position - (Vector2)m_v3CurrentPos).sqrMagnitude;
 
             if (fDistancePow <= fRangePowValue)
             {
-                // MonsterManager ¿¡ ÀÖ´Â ¸ó½ºÅÍµéÀ» ( ·¹ÀÌÀú °ø°İ ¹üÀ§ ³»¿¡ µé¾î¿À´Â ) ´ã¾ÆÁÜ.
+                // MonsterManager ì— ìˆëŠ” ëª¬ìŠ¤í„°ë“¤ì„ ( ë ˆì´ì € ê³µê²© ë²”ìœ„ ë‚´ì— ë“¤ì–´ì˜¤ëŠ” ) ë‹´ì•„ì¤Œ.
                 m_targetList.Add(trTarget);
             }
         }
 
-        // °Å±â¼­ ´Ù ´ã±ä ¾Öµé Áß °¡Àå °¡±î¿î ¾Ö ºÎÅÍ Á¤·Ä ½ÃÄÑÁÜ.
+        // ê±°ê¸°ì„œ ë‹¤ ë‹´ê¸´ ì• ë“¤ ì¤‘ ê°€ì¥ ê°€ê¹Œìš´ ì•  ë¶€í„° ì •ë ¬ ì‹œì¼œì¤Œ.
         m_targetList.Sort(CompareTargetDistance);
 
         return m_targetList.ToArray();
@@ -331,7 +331,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
         for (int i = 0; i < iSpawnLimit; i++)
         {
-            // ·¹ÀÌÀú »ı¼º
+            // ë ˆì´ì € ìƒì„±
             GameObject laserObj = PhotonNetwork.Instantiate("BendLaserPrefab", trFirePoint.position, Quaternion.identity);
             var laswerPV = laserObj.GetComponent<PhotonView>();
             var targetPv = targets[i].GetComponent<PhotonView>();
@@ -340,13 +340,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
             {
                 float fCurrentDamage = 50f + (m_fCurrentAttackLevel * 100f);
 
-                // RPC È£Ãâ: ¸ğµç Å¬¶óÀÌ¾ğÆ®¿¡°Ô Å¸°Ù Á¤º¸¸¦ º¸³¿. (  ³» ViewID, Å¸°ÙÀÇ ViewID, µ¥¹ÌÁö )
+                // RPC í˜¸ì¶œ: ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì—ê²Œ íƒ€ê²Ÿ ì •ë³´ë¥¼ ë³´ëƒ„. (  ë‚´ ViewID, íƒ€ê²Ÿì˜ ViewID, ë°ë¯¸ì§€ )
                 laswerPV.RPC("RPC_SetupLaser", RpcTarget.All, m_photonView.ViewID, targetPv.ViewID, fCurrentDamage);
             }
         }
     }
 
-    // ½ÇÁ¦ ¹ß»ç ·ÎÁ÷
+    // ì‹¤ì œ ë°œì‚¬ ë¡œì§
     private void FireBullet(Transform trTarget = null)
     {
         if (trFirePoint == null)
@@ -361,18 +361,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         {
             if (m_fCurrentAttackLevel < 0.3f)
             {
-                // ·¹º§ ³·À» ¶§: 1¹ß
+                // ë ˆë²¨ ë‚®ì„ ë•Œ: 1ë°œ
                 CreateBullet(trFirePoint.position, trFirePoint.rotation, fCurrentDamage);
             }
             else if (m_fCurrentAttackLevel < 0.7f)
             {
-                // ·¹º§ Áß°£: 2¹ß 
+                // ë ˆë²¨ ì¤‘ê°„: 2ë°œ 
                 CreateBullet(trFirePoint.position, trFirePoint.rotation * Quaternion.Euler(0, 0, 15f), fCurrentDamage);
                 CreateBullet(trFirePoint.position, trFirePoint.rotation * Quaternion.Euler(0, 0, -15f), fCurrentDamage);
             }
             else
             {
-                // ·¹º§ ³ôÀ» ¶§: 3¹ß 
+                // ë ˆë²¨ ë†’ì„ ë•Œ: 3ë°œ 
                 CreateBullet(trFirePoint.position, trFirePoint.rotation, fCurrentDamage);
                 CreateBullet(trFirePoint.position, trFirePoint.rotation * Quaternion.Euler(0, 0, 25f), fCurrentDamage);
                 CreateBullet(trFirePoint.position, trFirePoint.rotation * Quaternion.Euler(0, 0, -25f), fCurrentDamage);
@@ -400,7 +400,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         }
     }
 
-    // ÃÑ¾Ë »ı¼º ÇïÆÛ ÇÔ¼ö (Type 1 Àü¿ë)
+    // ì´ì•Œ ìƒì„± í—¬í¼ í•¨ìˆ˜ (Type 1 ì „ìš©)
     private void CreateBullet(Vector3 v3Position, Quaternion rotation, float fBulletDamage)
     {
         GameObject bulletObj = PhotonNetwork.Instantiate("BulletPrefab", v3Position, rotation);
@@ -413,7 +413,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         }
     }
 
-    // ÀÌµ¿ ¼Óµµ ¾÷±×·¹ÀÌµå ÇÔ¼ö
+    // ì´ë™ ì†ë„ ì—…ê·¸ë ˆì´ë“œ í•¨ìˆ˜
     public void UpgradeMoveSpeed(float amount)
     {
         if (!m_photonView.IsMine)
@@ -426,8 +426,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
     {
         Vector3 v3NextPos = transform.position + new Vector3(v2MoveInput.x, v2MoveInput.y, 0f) * m_fMoveSpeed * Time.deltaTime;
 
-        // ÇÃ·¹ÀÌ¾î À§Ä¡ ¼³Á¤ Àâ¾ÆÁÖ±â.
-        // ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓ È­¸é(°¡·Î -3.5 ~ 3.5, ¼¼·Î -4.6 ~ 4.6) ¹ÛÀ¸·Î ³ª°¡´Â °ÍÀ» ¸·ÀÚ.
+        // í”Œë ˆì´ì–´ ìœ„ì¹˜ ì„¤ì • ì¡ì•„ì£¼ê¸°.
+        // í”Œë ˆì´ì–´ê°€ ê²Œì„ í™”ë©´(ê°€ë¡œ -3.5 ~ 3.5, ì„¸ë¡œ -4.6 ~ 4.6) ë°–ìœ¼ë¡œ ë‚˜ê°€ëŠ” ê²ƒì„ ë§‰ì.
         v3NextPos.x = Mathf.Clamp(v3NextPos.x, -3.5f, 3.5f);
         v3NextPos.y = Mathf.Clamp(v3NextPos.y, -4.6f, 4.6f);
 
@@ -448,7 +448,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         }
     }
 
-    #region ÀÎÅÍÆäÀÌ½º (InputSystem) 
+    #region ì¸í„°í˜ì´ìŠ¤ (InputSystem) 
     public void OnMove(InputAction.CallbackContext context)
     {
         if (!m_photonView.IsMine || IsChatInputFocused())
@@ -471,7 +471,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
         m_fCurrentAttackLevel = Mathf.Clamp01(m_fCurrentAttackLevel + fAmount);
 
-        // ¸Å´ÏÀúÇÑÅ× UI °»½Å ¿äÃ»
+        // ë§¤ë‹ˆì €í•œí…Œ UI ê°±ì‹  ìš”ì²­
         if (PlayerUIManager.Instance != null)
             PlayerUIManager.Instance.UpdateAttackGauge(m_fCurrentAttackLevel);
     }
@@ -489,17 +489,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         UpgradeFireRate(fAmount);
     }
 
-    // ¿¬»ç ¼Óµµ ¾÷±×·¹ÀÌµå ÇÔ¼ö
+    // ì—°ì‚¬ ì†ë„ ì—…ê·¸ë ˆì´ë“œ í•¨ìˆ˜
     public void UpgradeFireRate(float fAmount)
     {
-        // ³» Ä³¸¯ÅÍÀÇ µ¥ÀÌÅÍ¸¸ ¼öÁ¤
+        // ë‚´ ìºë¦­í„°ì˜ ë°ì´í„°ë§Œ ìˆ˜ì •
         if (!m_photonView.IsMine)
             return;
 
-        // ÄğÅ¸ÀÓÀ» ÁÙ¿©¼­ ´õ ºü¸£°Ô ½î°Ô ÇÔ
+        // ì¿¨íƒ€ì„ì„ ì¤„ì—¬ì„œ ë” ë¹ ë¥´ê²Œ ì˜ê²Œ í•¨
         m_fFireCooldown -= fAmount;
 
-        // ÃÖ¼ÒÄ¡ Á¦ÇÑ
+        // ìµœì†Œì¹˜ ì œí•œ
         if (m_fFireCooldown < m_fMinFireCooldown)
         {
             m_fFireCooldown = m_fMinFireCooldown;
@@ -523,7 +523,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
     }
     #endregion
 
-    #region ¹öÆ° ÀÌº¥Æ® (¸ğ¹ÙÀÏ/UI¿ë)
+    #region ë²„íŠ¼ ì´ë²¤íŠ¸ (ëª¨ë°”ì¼/UIìš©)
     public void OnChargeButtonPressed()
     {
         m_bIsCharging = true;
@@ -534,14 +534,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
 
     public void OnChargeButtonReleased()
     {
-        // Â÷Áö ¹öÆ°¿¡¼­ ¼ÕÀ» ¶¼¸é Â÷Â¡ »óÅÂ¸¦ ÇØÁ¦
+        // ì°¨ì§€ ë²„íŠ¼ì—ì„œ ì†ì„ ë–¼ë©´ ì°¨ì§• ìƒíƒœë¥¼ í•´ì œ
         m_bIsCharging = false;
     }
 
-    // °ÔÀÌÁö ÃÊ±âÈ­ °ø¿ë ÇÔ¼ö
+    // ê²Œì´ì§€ ì´ˆê¸°í™” ê³µìš© í•¨ìˆ˜
     private void ResetUltimateGauge()
     {
-        // ÇÇ¹öÅ¸ÀÓ Áß¿¡´Â ¸®¼ÂÇÏÁö ¾ÊÀ½ (ÀÌ¹Ì ¹ß»ç ÁßÀÌ¹Ç·Î)
+        // í”¼ë²„íƒ€ì„ ì¤‘ì—ëŠ” ë¦¬ì…‹í•˜ì§€ ì•ŠìŒ (ì´ë¯¸ ë°œì‚¬ ì¤‘ì´ë¯€ë¡œ)
         if (m_bIsFevertime)
             return;
 
@@ -559,7 +559,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
     {
         m_bIsFevertime = true;
 
-        m_bIsCharging = false; // ÃæÀü ¿Ï·á ½Ã °­Á¦ Áß´Ü
+        m_bIsCharging = false; // ì¶©ì „ ì™„ë£Œ ì‹œ ê°•ì œ ì¤‘ë‹¨
 
         if (ultimateUI)
         {
@@ -604,130 +604,3 @@ public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IG
         return m_compChatManager.IsChatInputFocused();
     }
 }
-
-// ==========================================================================================
-
-//using UnityEngine;
-//using Photon.Pun;
-//using UnityEngine.SceneManagement;
-
-//public class PlayerController : MonoBehaviourPunCallbacks, Player_InputAction.IGamePlayActions, IPunObservable
-//{
-//    private PlayerMovement m_move;
-//    private PlayerAttack m_attack;
-//    private PlayerStats m_stats;
-//    private PlayerHealth m_health; // ÇüÀÌ ÁØ ½ºÅ©¸³Æ® È°¿ë
-
-//    private Player_InputAction m_input;
-//    private PhotonView m_pv;
-//    [SerializeField] private int m_iCharacterType = 1;
-
-//    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-//    {
-//        if (stream.IsWriting)
-//        {
-//            stream.SendNext(m_stats.m_fCurrentGauge);
-//            stream.SendNext(m_stats.m_fCurrentAttackLevel);
-//            stream.SendNext(m_stats.m_fCurrentSpeedLevel);
-//        }
-//        else
-//        {
-//            m_stats.m_fCurrentGauge = (float)stream.ReceiveNext();
-//            m_stats.m_fCurrentAttackLevel = (float)stream.ReceiveNext();
-//            m_stats.m_fCurrentSpeedLevel = (float)stream.ReceiveNext();
-//        }
-//    }
-
-//    private void Awake()
-//    {
-//        m_pv = GetComponent<PhotonView>();
-//        m_move = gameObject.AddComponent<PlayerMovement>();
-//        m_attack = GetComponent<PlayerAttack>();
-//        m_stats = GetComponent<PlayerStats>();
-//        m_health = GetComponent<PlayerHealth>();
-
-//        DontDestroyOnLoad(gameObject);
-//        //if (!m_pv.IsMine) 
-//        //    SetVisible(false);
-
-//        m_input = new Player_InputAction();
-//        m_input.GamePlay.SetCallbacks(this);
-//    }
-
-//    private void Update()
-//    {
-//        if (!m_pv.IsMine) return;
-
-//        m_move.ProcessMovement();
-//        m_stats.ProcessUltimate();
-//        m_attack.HandleAutoFire(m_iCharacterType, m_stats.m_fCurrentAttackLevel, m_stats.m_fCurrentSpeedLevel, m_stats.m_bIsFevertime);
-//    }
-
-//    // --- Input Actions ---
-//    public void OnMove(UnityEngine.InputSystem.InputAction.CallbackContext context)
-//        => m_move.SetMoveInput(context.ReadValue<Vector2>());
-
-//    public void OnUltimate(UnityEngine.InputSystem.InputAction.CallbackContext context)
-//    {
-//        if (context.started) m_stats.m_bIsCharging = true;
-//        else if (context.canceled) { m_stats.m_bIsCharging = false; m_stats.ResetGauge(); }
-//    }
-//    public void OnFire(UnityEngine.InputSystem.InputAction.CallbackContext context) { }
-
-//    // --- °­È­ ·ÎÁ÷ ---
-//    public void AddAttackPower(float fAmount)
-//    {
-//        if (!m_pv.IsMine) return;
-//        m_stats.m_fCurrentAttackLevel = Mathf.Clamp01(m_stats.m_fCurrentAttackLevel + fAmount);
-//        if (PlayerUIManager.Instance) PlayerUIManager.Instance.UpdateAttackGauge(m_stats.m_fCurrentAttackLevel);
-//    }
-
-//    public void AddSpeedPower(float fAmount)
-//    {
-//        if (!m_pv.IsMine) return;
-//        m_stats.m_fCurrentSpeedLevel = Mathf.Clamp01(m_stats.m_fCurrentSpeedLevel + fAmount);
-//        m_attack.SetCooldown(m_attack.GetCooldown() - fAmount);
-//        if (PlayerUIManager.Instance) PlayerUIManager.Instance.UpdateSpeedGauge(m_stats.m_fCurrentSpeedLevel);
-//    }
-
-//    private void SetVisible(bool isVisible)
-//    {
-//        var sr = GetComponent<SpriteRenderer>();
-//        if (sr) 
-//            sr.enabled = isVisible;
-//        foreach (Transform child in transform) child.gameObject.SetActive(isVisible);
-//    }
-
-//    public override void OnEnable() 
-//    { 
-//        base.OnEnable(); 
-//        SceneManager.sceneLoaded += OnSceneLoaded; 
-
-//        if (m_pv.IsMine) 
-//            m_input.GamePlay.Enable(); 
-//    }
-
-//    public override void OnDisable() 
-//    { 
-//        base.OnDisable(); 
-//        SceneManager.sceneLoaded -= OnSceneLoaded; 
-
-//        m_input.GamePlay.Disable(); 
-//    }
-
-//    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-//    {
-//        PhotonNetwork.IsMessageQueueRunning = true;
-
-//        if (scene.name == "GameScene")
-//        {
-//            SetVisible(true);
-//            if (m_pv.IsMine)
-//            {
-//                var ui = FindFirstObjectByType<PlayerHealthUI>();
-//                if (ui) m_health.AssignUI(ui);
-//                m_stats.ultimateUI = FindFirstObjectByType<UltimateUIManager>();
-//            }
-//        }
-//    }
-//}
