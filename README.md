@@ -72,9 +72,9 @@
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송됩니다.
 - 입력창이 포커스된 동안은 캐릭터 조작 입력이 되지 않게끔 예외처리를 했습니다.
-| 시연 화면 (GIF) | 구현 특징 및 설명 |
+| 시연 화면 (GIF) | 구현 특징 및 상세 설명 |
 | :---: | :--- |
-| <img src="./RenewShorts/Chatting.gif" width="400px"> | **[채팅 기능 구현 상세]** <br><br> 1. **기반 시스템**: `TMP_InputField`와 `ScrollRect`를 조합하여 부드러운 채팅창 UI 구현 <br> 2. **네트워크**: `photonView.RPC`를 호출하여 모든 클라이언트에 메시지 동기화 <br> 3. **예외 처리**: 입력창 활성화 시 캐릭터 이동/공격 입력이 차단되도록 설계 |
+| <img src="./RenewShorts/Chatting.gif" width="450px"> | **[채팅 기능 구현 상세]**<br><br>1. **기반 시스템**: `TMP_InputField`와 `ScrollRect`를 조합하여 부드러운 채팅창 UI 구현<br>2. **네트워크**: `photonView.RPC`를 호출하여 모든 클라이언트에 메시지 동기화<br>3. **예외 처리**: 입력창 활성화 시 캐릭터 이동/공격 입력이 차단되도록 설계 |
 
 ### 3. 플레이어 컨트롤
 - 캐릭터 2종을 구현하여, 각각 다른 공격 수단으로 적을 공격합니다. 
