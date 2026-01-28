@@ -3,74 +3,82 @@ using Photon.Pun;
 
 public class LaserController : MonoBehaviourPun
 {
-    public float laserDuration = 3f;      // 레이저 유지 시간
-    public float damagePerSecond = 100f;  // 초당 데미지
+    public float                                            m_fLaserDuration= 3f;                       // 레이저 유지 시간
+    public float                                            m_fDamagePerSecond = 100f;                  // 초당 데미지
 
-    private BossController targetBoss = null;
-    private float damageTickRate = 0.1f;  // 데미지 주기 (0.1초마다)
-    private float damageTimer = 0f;
+    private BossController                                  targetBossController = null;
+    private float                                           m_fDamageTickRate = 0.1f;                   // 데미지 주기 (0.1초마다)
+    private float                                           m_fDamageTimer = 0f;
 
     private void Start()
     {
-        Destroy(gameObject, laserDuration);
+        GameSceneManager.CheckAndHideObject(this);
+
+        Destroy(gameObject, m_fLaserDuration);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine) 
+            return;
 
         if (collision.CompareTag("Enemy"))
         {
             PhotonView enemyPV = collision.GetComponent<PhotonView>();
+
             if (enemyPV != null)
             {
-                photonView.RPC("RequestDestroyEnemy", RpcTarget.MasterClient, enemyPV.ViewID);
+                enemyPV.RPC("TakeDamage", RpcTarget.MasterClient, 9999f);
             }
         }
         else if (collision.CompareTag("Boss"))
         {
-            BossController boss = collision.GetComponent<BossController>();
-            if (boss != null)
+            BossController bossController = collision.GetComponent<BossController>();
+
+            if (bossController != null)
             {
-                targetBoss = boss;
-                boss.photonView.RPC("StartHitFlashLoop", RpcTarget.All); // 반짝이기 시작
+                targetBossController = bossController;
+                bossController.photonView.RPC("StartHitFlashLoop", RpcTarget.All); // 반짝이기 시작
             }
         }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine) 
+            return;
 
-        if (collision.CompareTag("Boss") && targetBoss != null)
+        if (collision.CompareTag("Boss") && targetBossController != null)
         {
-            damageTimer += Time.deltaTime;
+            m_fDamageTimer += Time.deltaTime;
 
-            if (damageTimer >= damageTickRate)
+            if (m_fDamageTimer >= m_fDamageTickRate)
             {
-                float damage = damagePerSecond * damageTickRate;  // 이 틱에 줄 데미지
-                targetBoss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, damage);
-                damageTimer = 0f;
+                float fLaserDamage = m_fDamagePerSecond * m_fDamageTickRate;  // 이 틱에 줄 데미지
+
+                targetBossController.photonView.RPC("TakeDamage", RpcTarget.MasterClient, fLaserDamage);
+                m_fDamageTimer = 0f;
             }
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine) 
+            return;
 
-        if (collision.CompareTag("Boss") && targetBoss != null)
+        if (collision.CompareTag("Boss") && targetBossController != null)
         {
-            targetBoss.photonView.RPC("StopHitFlashLoop", RpcTarget.All);
-            targetBoss = null;
+            targetBossController.photonView.RPC("StopHitFlashLoop", RpcTarget.All);
+            targetBossController = null;
         }
     }
 
     private void OnDestroy()
     {
-        if (photonView.IsMine && targetBoss != null)
+        if (photonView.IsMine && targetBossController != null)
         {
-            targetBoss.photonView.RPC("StopHitFlashLoop", RpcTarget.All);
+            targetBossController.photonView.RPC("StopHitFlashLoop", RpcTarget.All);
         }
     }
 
@@ -78,6 +86,7 @@ public class LaserController : MonoBehaviourPun
     void RequestDestroyEnemy(int viewID)
     {
         PhotonView enemyPV = PhotonView.Find(viewID);
+
         if (enemyPV != null && enemyPV.IsMine)
         {
             PhotonNetwork.Destroy(enemyPV.gameObject);

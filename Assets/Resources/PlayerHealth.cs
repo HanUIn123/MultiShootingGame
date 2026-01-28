@@ -3,43 +3,56 @@ using Photon.Pun;
 
 public class PlayerHealth : MonoBehaviourPun
 {
-    public int maxHP = 100;
-    private int currentHP;
+    [Header("체력 세팅")]
+    public int                                          m_iMaxHP = 100;
+    private int                                         m_iCurrentHP;
 
-    private PlayerHealthUI healthUI; 
-    private PhotonView pv;
+    private PlayerHealthUI                              m_pHealthUI;
+    private PhotonView                                  m_pPv;
 
-    void Awake()
+    private void Awake()
     {
-        pv = GetComponent<PhotonView>();
+        m_pPv = GetComponent<PhotonView>();
+
+        m_iCurrentHP = m_iMaxHP;
     }
 
-    void Start()
+    private void Start()
     {
-        currentHP = maxHP;
+      
     }
 
-    public void AssignUI(PlayerHealthUI ui)
+    public void AssignUI(PlayerHealthUI pUi)
     {
-        healthUI = ui;
-    }
+        m_pHealthUI = pUi;
 
-
-    [PunRPC]
-    void RPC_TakeDamage(int dmg)
-    {
-        // 내 PhotonView가 내꺼일 때만
-        if (!pv.IsMine) 
-            return; 
-
-        currentHP = Mathf.Clamp(currentHP - dmg, 0, maxHP);
-
-        if (healthUI != null)
-            healthUI.SetHP(currentHP);
-
-        if (currentHP <= 0)
+        if (m_pHealthUI != null)
         {
-            Debug.Log("Player Dead");
+            m_pHealthUI.SetHP(m_iCurrentHP, m_iMaxHP);
         }
     }
+
+    [PunRPC]
+    public void RPC_TakeDamage(float fDmg)
+    {
+        m_iCurrentHP = Mathf.Clamp(m_iCurrentHP - (int)fDmg, 0, m_iMaxHP);
+
+        // 팀원 화면에서 팀원 본인 피가 깎이게 하기 위해, IsMine 체크.
+        if (photonView.IsMine)
+        {
+            if (m_pHealthUI != null)
+            {
+                m_pHealthUI.SetHP(m_iCurrentHP, m_iMaxHP);
+            }
+            else
+            {
+                // 만약 UI가 연결이 안 됐다면 강제로 찾아 넣기.
+                m_pHealthUI = FindFirstObjectByType<PlayerHealthUI>();
+
+                if (m_pHealthUI != null) 
+                    m_pHealthUI.SetHP(m_iCurrentHP, m_iMaxHP);
+            }
+        }
+    }
+
 }

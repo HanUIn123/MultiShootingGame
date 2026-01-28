@@ -4,29 +4,38 @@ using System.Collections;
 
 public class UltimateUIManager : MonoBehaviour
 {
-    public Image ultimateGauge;
-    public RectTransform cutInRect; 
-    public float slideDuration = 0.3f;
-    public float displayDuration = 0.8f;
+    public Image                                                        ultimateGaugeImg;
+    public RectTransform                                                cutInRect; 
+    public float                                                        m_fSlideDuration = 0.1f;
+    public float                                                        m_fDisplayDuration = 0.3f;
 
-    public Vector2 startOffset = new Vector2(800f, 400f); 
-    public Vector2 endPosition = Vector2.zero; 
-    public System.Action onCutInFinished;
+    public Vector2                                                      m_v2StartOffset = new Vector2(800f, 400f); 
+    public Vector2                                                      m_v2EndPosition = Vector2.zero; 
+    public System.Action                                                onCutInFinished;
 
-    private Vector2 originalAnchoredPos;
-
-    public void UpdateGauge(float value)
+    public void UpdateGauge(float fAmount)
     {
-        if (ultimateGauge != null)
-            ultimateGauge.fillAmount = value;
+        if (ultimateGaugeImg != null)
+        {
+            ultimateGaugeImg.fillAmount = fAmount;
+
+            if (fAmount <= 0f)
+            {
+                //게이지 이미지만 끄기
+                ultimateGaugeImg.gameObject.SetActive(false);
+            }
+            else
+            {
+                // 차징 시작하면 다시 보이기
+                ultimateGaugeImg.gameObject.SetActive(true);
+            }
+        }
     }
 
     public void PlayCutIn()
     {
         if (cutInRect == null) 
             return;
-
-        originalAnchoredPos = cutInRect.anchoredPosition;
 
         StopAllCoroutines();
 
@@ -37,61 +46,63 @@ public class UltimateUIManager : MonoBehaviour
     {
         cutInRect.gameObject.SetActive(true);
 
-        // 우상단 바깥에서 시작하자, 화면 중앙값 + 시작 위치 값 더해서, 
-        cutInRect.anchoredPosition = endPosition + startOffset;
-
+        // 우상단 -> 중앙 진입
         float fTime = 0f;
-        while (fTime < slideDuration)
+        Vector2 v2StartPos = m_v2EndPosition + m_v2StartOffset;
+
+        while (fTime < m_fSlideDuration)
         {
             fTime += Time.deltaTime;
+            float t = fTime / m_fSlideDuration;
 
-            cutInRect.anchoredPosition = Vector2.Lerp(endPosition + startOffset, endPosition, fTime / slideDuration);
+            float tEntry = 1f - Mathf.Pow(1f - t, 4f);
 
+            cutInRect.anchoredPosition = Vector2.Lerp(v2StartPos, m_v2EndPosition, tEntry);
             yield return null;
         }
 
-        // 이제 여기서 cutInRect는, 화면 중앙이 되버림.
-        cutInRect.anchoredPosition = endPosition;
+        cutInRect.anchoredPosition = m_v2EndPosition;
 
-        // 동시에 진동 애니메이션
-        StartCoroutine(ShakeImage(cutInRect, displayDuration, 3f));
+        // 중앙에 도착해서 대기 후, 진동 
+        yield return StartCoroutine(ShakeImage(cutInRect, m_fDisplayDuration, 15f));
 
-        // 잠시 대기
-        yield return new WaitForSeconds(displayDuration);
-
-        // 화면 중앙에서 이제 startOffset 을 빼면 반대방향으로 가겟지?
+        // 중앙 -> 좌하단 이동.
         fTime = 0f;
-        while (fTime < slideDuration)
+        Vector2 v2ExitPos = m_v2EndPosition - m_v2StartOffset;
+
+        while (fTime < m_fSlideDuration)
         {
             fTime += Time.deltaTime;
+            float t = fTime / m_fSlideDuration;
 
-            cutInRect.anchoredPosition = Vector2.Lerp(endPosition, endPosition - startOffset, fTime / slideDuration);
+            // 나가는 것도 3제곱(t^3)으로 맞추면 들어올 때와 속도 밸런스를 맞춘다.
+            float tExit = t * t * t;
 
+            cutInRect.anchoredPosition = Vector2.Lerp(m_v2EndPosition, v2ExitPos, tExit);
             yield return null;
         }
 
         cutInRect.gameObject.SetActive(false);
-
         onCutInFinished?.Invoke();
     }
 
-    private IEnumerator ShakeImage(RectTransform target, float fDuration, float fMagnitude)
+    private IEnumerator ShakeImage(RectTransform targetRect, float fDuration, float fMagnitude)
     {
-        Vector3 originalPos = target.localPosition;
-
+        Vector2 v2CenterPos = targetRect.anchoredPosition;
         float fElapsed = 0f;
 
         while (fElapsed < fDuration)
         {
+            fElapsed += Time.deltaTime;
+
             float fOffsetX = Random.Range(-1f, 1f) * fMagnitude;
             float fOffsetY = Random.Range(-1f, 1f) * fMagnitude;
-            target.localPosition = originalPos + new Vector3(fOffsetX, fOffsetY, 0f);
+            targetRect.anchoredPosition = v2CenterPos + new Vector2(fOffsetX, fOffsetY);
 
-            fElapsed += Time.deltaTime;
             yield return null;
         }
 
-        target.localPosition = originalPos;
+        targetRect.anchoredPosition = v2CenterPos;
     }
 
     public void OnChargeButtonPressed()

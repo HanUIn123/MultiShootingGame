@@ -8,18 +8,19 @@ using UnityEngine.EventSystems;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
-    public TMP_InputField chatInputField;
-    public TMP_Text chatLogText;
-    public ScrollRect scrollRect;
+    [Header("Chat UI Settings")]
+    [SerializeField] private TMP_InputField                 m_pChatInputField = null;
+    [SerializeField] private TMP_Text                       m_pChatLogText = null;
+    [SerializeField] private ScrollRect                     m_pScrollRect = null;
 
     void Start()
     {
-        chatInputField.text = "";
+        m_pChatInputField.text = "";
     }
 
     public void OnClickSend()
     {
-        string strMessage = chatInputField.text;
+        string strMessage = m_pChatInputField.text;
 
         if (string.IsNullOrEmpty(strMessage)) 
             return;
@@ -28,15 +29,19 @@ public class ChatManager : MonoBehaviourPunCallbacks
 
         photonView.RPC("ReceiveChatMessage", RpcTarget.All, strFullMessage);
 
-        chatInputField.text = "";
+        m_pChatInputField.text = "";
 
         EventSystem.current.SetSelectedGameObject(null); 
     }
 
+    /*
+     RPC 함수는 문자열("ReceiveChatMessage")로 넘겨서 
+    포톤 시스템이 뒤에서 몰래 호출하기 때문에 에디터가 인식을 못 하는 겁
+     */
     [PunRPC]
     void ReceiveChatMessage(string strMessage)
     {
-        chatLogText.text += strMessage + "\n";
+        m_pChatLogText.text += strMessage + "\n";
         StartCoroutine(ScrollToBottomNextFrame());
     }
 
@@ -44,13 +49,12 @@ public class ChatManager : MonoBehaviourPunCallbacks
     {
         yield return null; 
         Canvas.ForceUpdateCanvases();
-        scrollRect.verticalNormalizedPosition = 0f;
+        m_pScrollRect.verticalNormalizedPosition = 0f;
     }
 
-    // 클래스 안에 이 함수 추가해
     public bool IsChatInputFocused()
     {
-        return EventSystem.current.currentSelectedGameObject == chatInputField.gameObject;
+        return EventSystem.current.currentSelectedGameObject == m_pChatInputField.gameObject;
     }
 
 }

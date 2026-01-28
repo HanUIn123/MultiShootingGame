@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager Instance;
+    public static SoundManager                              Instance;
 
-    public AudioSource bgmSource;
-    public AudioSource sfxSource;
+    public AudioSource                                      bgmSource;
+    public AudioSource                                      sfxSource;
 
     // BGM별 볼륨 테이블
     private Dictionary<string, float> bgmVolumes = new Dictionary<string, float>()
@@ -21,7 +21,6 @@ public class SoundManager : MonoBehaviour
     {
         { "FireSound", 1.0f },
         { "BulletSound", 0.2f }
-        //{ "Explosion", 0.8f }
     };
 
     private void Awake()

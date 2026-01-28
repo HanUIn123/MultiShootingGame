@@ -3,24 +3,30 @@ using Photon.Pun;
 
 public class BossBullet : MonoBehaviourPun
 {
-    public float speed = 5f;
-    private Vector3 moveDirection = Vector3.down; 
+    public float                                                            m_fBossBulletSpeed= 5f;
+    private Vector3                                                         m_fBossBulletmoveDirection = Vector3.down;
 
-    public void SetDirection(Vector3 dir)
+    [Header("보스 총알 세팅")]
+    [SerializeField]
+    private float                                                           m_fBossBulletDamage = 20.0f;
+
+    public void SetDirection(Vector3 v3Direction)
     {
-        moveDirection = dir.normalized;
+        m_fBossBulletmoveDirection = v3Direction.normalized;
 
-        photonView.RPC("RPC_SetDirection", RpcTarget.OthersBuffered, dir.x, dir.y, dir.z);
+        photonView.RPC("RPC_SetDirection", RpcTarget.OthersBuffered, v3Direction.x, v3Direction.y, v3Direction.z);
     }
 
     [PunRPC]
-    void RPC_SetDirection(float x, float y, float z)
+    void RPC_SetDirection(float fX, float fY, float fZ)
     {
-        moveDirection = new Vector3(x, y, z).normalized;
+        m_fBossBulletmoveDirection = new Vector3(fX, fY, fZ).normalized;
     }
 
     void Start()
     {
+        GameSceneManager.CheckAndHideObject(this);
+
         if (photonView != null && photonView.IsMine)
         {
             Invoke(nameof(SelfDestruct), 3f);
@@ -29,7 +35,7 @@ public class BossBullet : MonoBehaviourPun
 
     void Update()
     {
-        transform.Translate(moveDirection * speed * Time.deltaTime);
+        transform.Translate(m_fBossBulletmoveDirection * m_fBossBulletSpeed * Time.deltaTime);
     }
 
     private void SelfDestruct()
@@ -53,7 +59,7 @@ public class BossBullet : MonoBehaviourPun
 
         if (PlayerHelath != null)
         {
-            PlayerHelath.photonView.RPC("RPC_TakeDamage", PlayerHelath.photonView.Owner, 10);
+            PlayerHelath.photonView.RPC("RPC_TakeDamage", PlayerHelath.photonView.Owner, m_fBossBulletDamage);
         }
 
         if (photonView != null && photonView.IsMine && gameObject != null)

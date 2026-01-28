@@ -55,6 +55,17 @@ MonoBehaviour:
   - InitBossUI
   - SetStartTime
   - HideBossUI
+  - RequestStartTime
+  - RPC_SyncHealth
+  - RPC_StartDissolve
+  - RPC_DestroyItem
+  - RPC_StartHitFlash
+  - RPC_SetupLaser
+  - Die
+  - RPC_PlayHitEffect
+  - RPC_ShowDamageText
+  - RPC_PlayStageClear
+  - RPC_UpdateTargetPos
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
