@@ -23,6 +23,20 @@
 ## ■ 시연 영상
 - [Multi Shooting 시연 영상](https://youtu.be/d7c2HUZ4O4U)
 
+## ■ 프로젝트 구조 및 주요 소스코드
+<pre>
+📂 <b>Assets/Scripts</b>
+├── 📂 <b>Network</b>
+│   ├── <a href="./Assets/Scripts/Network/NetworkManager.cs">NetworkManager.cs</a> (방 생성/참가 및 네트워크 초기화)
+│   └── <a href="./Assets/Scripts/Network/ChatManager.cs">ChatManager.cs</a> (RPC 기반 실시간 채팅 시스템)
+├── 📂 <b>Actors</b>
+│   ├── <a href="./Assets/Scripts/Actors/PlayerController.cs">PlayerController.cs</a> (New Input System 조작 및 동기화)
+│   ├── <a href="./Assets/Scripts/Actors/BossController.cs">BossController.cs</a> (보스 AI 및 3단 탄막 패턴)
+│   └── <a href="./Assets/Scripts/Actors/Projectile.cs">Projectile.cs</a> (투사체 로직 및 네트워크 파괴)
+└── 📂 <b>Effects & UI</b>
+    ├── <a href="./Assets/Scripts/UI/UIManager.cs">UIManager.cs</a> (스테이지 진행도 및 체력바 제어)
+    └── <a href="./Assets/Scripts/Effects/UltimateEffect.cs">UltimateEffect.cs</a> (궁극기 컷인 및 레이저 연출)
+</pre>
 ---
 
 ## ■ 주요 구현 기능
