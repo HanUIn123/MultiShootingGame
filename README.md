@@ -66,18 +66,18 @@
 - PhotonNetwork.Instantiate를 활용하여 플레이어, 총알, 보스 오브젝트를 네트워크로 동기화했습니다.
 - RPC 호출을 통해 보스 HP, 채팅 메시지 등을 모든 클라이언트에 공유합니다.
 
-| 시연 화면 (GIF) |
+| 네트워크 동기화 (방 생성 및 참가) |
 | :---: |
-| **네트워크 동기화 (방 생성 및 참가)** <br> <img src="./RenewShorts/Networking.gif" width="350px"> |
+| <img src="./RenewShorts/Networking.gif" width="350px"> |
 
 ### 2. 채팅 시스템
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
 - 메시지 입력 시 photonView.RPC를 통해 전체 클라이언트에 전송됩니다.
 - 입력창이 포커스된 동안은 캐릭터 조작 입력이 되지 않게끔 예외처리를 했습니다.
 
-| 시연 화면 (GIF) |
+| 채팅 시스템 시연 |
 | :---: |
-| **채팅 시스템 시연** <br> <img src="./RenewShorts/Chatting.gif" width="350px"> |
+| <img src="./RenewShorts/Chatting.gif" width="350px"> |
 
 ### 3. 플레이어 컨트롤
 - 캐릭터 2종을 구현하여, 각각 다른 공격 수단으로 적을 공격합니다.
