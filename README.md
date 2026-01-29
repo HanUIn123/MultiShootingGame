@@ -18,7 +18,7 @@
 - 네트워크 : Photon PUN2
 
 ## ■ 시연 영상
-- [Multi Shooting 시연 영상](https://youtu.be/d7c2HUZ4O4U)
+- [Multi Shooting 시연 영상]([https://youtu.be/d7c2HUZ4O4U](https://youtu.be/9RZ5H69Rm8s))
 
 ## ■ 프로젝트 구조 및 주요 소스코드
 <pre>
