@@ -103,9 +103,9 @@
 - "보스 출몰 경고 UI"는 일정시간 동안 sprite 이미지 전체가 setActive true/false를 반복시켰습니다.
 - "스테이지 진행바, 플레이어 체력바, 보스 체력바 UI"는 Image의 Fill 타입을 통해 제어했습니다.
 
-| 시연 화면 (GIF) |
+| 보스 출몰 경고 연출 |
 | :---: |
-| **보스 출몰 경고 연출** <br> <img src="./RenewShorts/BossAppear.gif" width="350px"> |
+| <img src="./RenewShorts/BossAppear.gif" width="300px"> |
 
 ---
 
