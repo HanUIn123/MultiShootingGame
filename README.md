@@ -68,7 +68,7 @@
 
 | 네트워크 동기화 (방 생성 및 참가) |
 | :---: |
-| <img src="./RenewShorts/Networking.gif" width="350px"> |
+| <img src="./RenewShorts/Networking.gif" width="300px"> |
 
 ### 2. 채팅 시스템
 - TMP_InputField + ScrollRect 기반 채팅창을 구현했습니다.
