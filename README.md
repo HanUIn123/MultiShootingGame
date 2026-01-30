@@ -77,7 +77,7 @@
 
 | 채팅 시스템 시연 |
 | :---: |
-| <img src="./RenewShorts/Chatting.gif" width="350px"> |
+| <img src="./RenewShorts/Chatting.gif" width="300px"> |
 
 ### 3. 플레이어 컨트롤
 - 캐릭터 2종을 구현하여, 각각 다른 공격 수단으로 적을 공격합니다.
@@ -87,7 +87,7 @@
 
 | 플레이어 캐릭터 1 | 플레이어 캐릭터 2 |
 | :---: | :---: |
-| <img src="./RenewShorts/Character1.gif" width="300px"> | <img src="./RenewShorts/Character2.gif" width="300px"> |
+| <img src="./RenewShorts/Character1.gif" width="300px"> | <img src="./RenewShorts/Character2.gif" width="260px"> |
 
 ### 4. 보스전 시스템
 - 스테이지 진행도의 게이지가 100% 도달하면 보스 출몰 경고 UI가 표시됩니다.
