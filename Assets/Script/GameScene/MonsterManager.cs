@@ -3,13 +3,12 @@ using System.Collections.Generic;
 
 public class MonsterManager : MonoBehaviour
 {
-    // Àü¿ª¿¡¼­ Á¢±Ù °¡´ÉÇÑ ¸ó½ºÅÍ ¸í´Ü (°øÀå Á÷¸íºÎ)
-    // staticÀÌ¶ó¼­ ¾î¶² ½ºÅ©¸³Æ®¿¡¼­µµ MonsterManager.AllMonsters·Î ¹Ù·Î Á¢±Ù °¡´ÉÇÕ´Ï´Ù.
+    // ì „ì—­ì—ì„œ ì ‘ê·¼ ê°€ëŠ¥í•œ ëª¬ìŠ¤í„° ë§¤ë‹ˆì €
     public static List<Transform> AllMonsters = new List<Transform>();
 
     private void Awake()
     {
-        // ¾ÀÀÌ ¹Ù²ğ ¶§ ¸®½ºÆ®°¡ ²¿ÀÌÁö ¾Êµµ·Ï ÃÊ±âÈ­
+        // ì”¬ì´ ë°”ë€” ë•Œ ëª¬ìŠ¤í„° ë¦¬ìŠ¤íŠ¸ ì •ë³´ ì´ˆê¸°í™”
         AllMonsters.Clear();
     }
 }
