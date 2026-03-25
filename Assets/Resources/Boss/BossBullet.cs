@@ -6,7 +6,7 @@ public class BossBullet : MonoBehaviourPun
     public float                                                            m_fBossBulletSpeed= 5f;
     private Vector3                                                         m_fBossBulletmoveDirection = Vector3.down;
 
-    [Header("���� �Ѿ� ����")]
+    [Header("º¸½º ÃÑ¾Ë ¼¼ÆÃ")]
     [SerializeField]
     private float                                                           m_fBossBulletDamage = 20.0f;
 
@@ -23,14 +23,21 @@ public class BossBullet : MonoBehaviourPun
         m_fBossBulletmoveDirection = new Vector3(fX, fY, fZ).normalized;
     }
 
+    void OnEnable()
+    {
+        // 풀에서 꺼내질 때마다 실행됨
+        if (photonView != null && photonView.IsMine)
+        {
+            // 이전 예약이 남아있을 수 있으니 취소하고 새로 예약
+            CancelInvoke(nameof(SelfDestruct));
+            
+            Invoke(nameof(SelfDestruct), 3f);
+        }
+    }
+
     void Start()
     {
         GameSceneManager.CheckAndHideObject(this);
-
-        if (photonView != null && photonView.IsMine)
-        {
-            Invoke(nameof(SelfDestruct), 3f);
-        }
     }
 
     void Update()
@@ -43,10 +50,6 @@ public class BossBullet : MonoBehaviourPun
         if (photonView != null && photonView.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
-        }
-        else if (gameObject != null)
-        {
-            Destroy(gameObject);
         }
     }
 
@@ -65,10 +68,6 @@ public class BossBullet : MonoBehaviourPun
         if (photonView != null && photonView.IsMine && gameObject != null)
         {
             PhotonNetwork.Destroy(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 }
